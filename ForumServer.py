@@ -60,6 +60,22 @@ def get_posts(groupName):
 #   SERVER PROCEDURES    #
 #------------------------#
 
+def fulfill_grouprange_request(client,rangeStart, rangeEnd):
+    groups = get_all_groups()
+    if(verbose) : print("all groups on server " + str(groups))
+    range_groups = []
+    for i in range(rangeStart-1,rangeEnd):
+        try:
+            g = groups[i]
+            print("range " + str(i) + ' is ' + str(g))
+            range_groups.append(g)
+        except:
+            break
+    strBuffer = StringIO()
+    json.dump(range_groups,strBuffer)
+    if(verbose): print("Preparing to send grouprange response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
+
 def fulfill_AG_request(client):
     groups = get_all_groups()
     strBuffer = StringIO()
@@ -139,6 +155,21 @@ def init_database_object():
             print("Database:")
             print(database)
 
+#-------------------#
+#   PROTOCOLS       #
+#-------------------#
+# gets groups from the server app data, within a certain range. 
+def perform_protocol_grouprange(contentHeaders):
+    try:
+        contentJso = json.loads(contentHeaders)
+        start = int(contentJso['START'])
+        end = int(contentJso['END'])
+        if(verbose): print("grouprange for client request is [" +str(start) + "," + str(end) + "]")
+        return [start,end]
+    except:
+        if(verbose): print("error trying to extract group ranges")
+    return 
+
 
 #--------------------#
 #   SCRIPT           #
@@ -176,11 +207,15 @@ while True:
             break
         else:
             clientRequest = resp.split(":",1)
-            requested_procedure = getProcedure(clientRequest[0])
-            if(requested_procedure == fulfill_RG_request):
-                if verbose : print("client sent a RG request for group : " + str(clientRequest[1]))
-                requested_procedure(connect,str(clientRequest[1]))
-            requested_procedure(connect)
+            if(clientRequest[0]=="GETGROUPRANGE"):
+                group_ranges = perform_protocol_grouprange(clientRequest[1])
+                fulfill_grouprange_request(connect, group_ranges[0],group_ranges[1])
+            else:
+                requested_procedure = getProcedure(clientRequest[0])
+                if(requested_procedure == fulfill_RG_request):
+                    if verbose : print("client sent a RG request for group : " + str(clientRequest[1]))
+                    requested_procedure(connect,str(clientRequest[1]))
+                requested_procedure(connect)
 
         # Send an answer
         connect.send("FIN")

@@ -1,0 +1,1 @@
+{"567": {"read": {"comp.programming": ["post1"]}, "subscribed": ["comp.programming"]}}

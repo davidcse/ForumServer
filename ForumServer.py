@@ -51,10 +51,7 @@ def get_all_groups():
 def get_posts(groupName):
     try:
         targetGroup = database[groupName]
-        postList = []
-        for key,value in targetGroup.items():
-            postList.append(key)
-        return postList
+        return targetGroup
     except:
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
         return None
@@ -71,7 +68,7 @@ def fulfill_AG_request(client):
     client.send(strBuffer.getvalue())
 
 def fulfill_SG_request(client):
-    groups = get_all_groups()
+    groups = database
     strBuffer = StringIO()
     json.dump(groups,strBuffer)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
@@ -92,9 +89,9 @@ def execute_default(client):
 
 #Dictionary of procedure functions, which must be defined above. 
 procedures={
-        'AG:' : fulfill_AG_request,
-        'SG:' : fulfill_SG_request,
-        'RG:' : fulfill_RG_request
+        'AG' : fulfill_AG_request,
+        'SG' : fulfill_SG_request,
+        'RG' : fulfill_RG_request
     }
 #Get server's procedure method to handle client request
 def getProcedure(procedure_key):
@@ -178,7 +175,11 @@ while True:
         elif(resp=="SHUTDOWN"):
             break
         else:
-            requested_procedure = getProcedure(resp)
+            clientRequest = resp.split(":",1)
+            requested_procedure = getProcedure(clientRequest[0])
+            if(requested_procedure == fulfill_RG_request):
+                if verbose : print("client sent a RG request for group : " + str(clientRequest[1]))
+                requested_procedure(connect,str(clientRequest[1]))
             requested_procedure(connect)
 
         # Send an answer

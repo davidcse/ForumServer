@@ -21,7 +21,7 @@ sampleUserData = {
     '567':{
                 'subscribed':['comp.programming','comp.os.threads'],
                 'read':{
-                        'comp.programming':['first post','second post']
+                        'comp.programming':['post1']
                     }
             }
     }
@@ -96,10 +96,54 @@ def get_read_posts(groupName):
 
 def mark_as_read(groupName,post):
     userData["read"][groupName].append(post)
+    
+def get_num_unread_posts(groupName, serverGroupObj):
+    try:
+        read_posts = get_read_posts(groupName)
+    except KeyError:
+        if(verbose): print("group : " + str(groupName) + " has no read posts, all is new.")
+        read_posts = []
+    num_unread = 0
+    for i in serverGroupObj:
+        if(i not in read_posts):
+            num_unread = num_unread + 1
+    return num_unread
+    
 
-                                    #------------------------------#
-                                    #    CLIENT PROCEDURES         #
-                                    #------------------------------#
+            
+                #------------------------------#
+                #    CLIENT PROCEDURES         #
+                #------------------------------#
+                
+# Attempts to store user preference data, and closes server socket before exiting.
+# @param : server , server's socket
+def perform_logout(server):
+    print("Performing logging out user")
+    global userData
+    try:
+        #update user preferences and store back into file
+        database = load_json_data(CLIENT_DATA_ADDR)
+        database[currentUserId] = userData
+        store_json_data(CLIENT_DATA_ADDR,database)
+    except:
+        print("FAILED TO STORE USER DATA AT ADDRESS: " + str(CLIENT_DATA_ADDR))
+    print("Closing connection with the server ")
+    server.close()
+    print("Session Terminated Successfully")
+
+
+
+# Contacts server for discussions of a specific group
+# @param : server , socket of server
+# @param : groupName , the target group we want discussions for
+# @param : numStep , number of discussion posts to display at a time. 
+def perform_rg(server,groupName, numStep):
+    server.send("RG:"+str(groupName))
+    server_resp = start_polling(server)
+    if(server_resp != None):
+        rg_submenu_interface(server_resp,groupName)
+    print("Finished executing rg : " + str(groupName))    
+
 
 # Asks server to display all groups available.
 # @param : server , socket of server
@@ -142,8 +186,18 @@ def sg_submenu_interface(response):
         user_input = raw_input("\n>>")
         args = trim_to_arg_array(user_input)
         breakStatus = perform_action_sg_submenu(args)
-        if(breakStatus):
-            break
+        if(breakStatus): break
+
+# Requests user for RG Submenu commands, and tries to execute it.
+def rg_submenu_interface(response,groupName):
+    formatted_RG_response(response,groupName)
+    while True:
+        print("\n\n***  RG - Submenu : " + str(groupName)+"****")
+        user_input = raw_input("\n>>")
+        args = trim_to_arg_array(user_input)
+        breakStatus = perform_action_rg_submenu(args)
+        if(breakStatus): break
+
 
 # Formatted response for an AG request
 def formatted_AG_response(response):
@@ -166,9 +220,22 @@ def formatted_SG_response(response):
             matched_subscribed_group.append(i)
     # print the subscribed groups formatted way
     for i in range(len(matched_subscribed_group)):
-        format_line = str(i+1)+ ". " +"777" + " " + str(matched_subscribed_group[i])
+        num_unread = get_num_unread_posts(matched_subscribed_group[i],response[matched_subscribed_group[i]])
+        format_line = str(i+1)+ ". " +str(num_unread) + " " + str(matched_subscribed_group[i])
         print(format_line)
 
+# Formatted response for an RG request
+def formatted_RG_response(response, groupName):
+    read_posts = get_read_posts(groupName)
+    numCount = 1
+    for i in response:
+        newStatus = " "
+        if i not in read_posts:
+            newStatus = "N"
+        format_line = str(numCount) + ". " +str(newStatus) + " " + str(i)
+        numCount = numCount + 1
+        print(format_line)
+        
 
 #fulfills client requested functions in the AG submenu
 # @param args : list of str , contains user processed input.
@@ -189,7 +256,7 @@ def perform_action_ag_submenu(args):
         command_AG_helpmenu()
 
 
-#fulfills client requested functions in the sG submenu
+#fulfills client requested functions in the SG submenu
 # @param args : list of str , contains user processed input.
 def perform_action_sg_submenu(args):
     if len(args) ==0 :
@@ -204,6 +271,25 @@ def perform_action_sg_submenu(args):
     else:
         print("invalid SG subcommand")
         command_SG_helpmenu()
+
+
+#fulfills client requested functions in the RG submenu
+# @param args : list of str , contains user processed input.
+def perform_action_rg_submenu(args):
+    if len(args) ==0 :
+        print("Error : nothing entered")
+    elif args[0] == "r" :
+        print("executing AG_s ...")
+    elif args[0] == "n" :
+        print("executing AG_u ...")
+    elif args[0] == "p" :
+        print("executing AG_n ...")
+    elif args[0] == "q" :
+        print("executing AG_q ...")
+        return True
+    else:
+        print("invalid AG subcommand")
+        command_AG_helpmenu()
 
 # AG help menu
 def command_AG_helpmenu():
@@ -221,33 +307,6 @@ def command_SG_helpmenu():
     print("q : quit submenu")
 
 
-        
-
-
-# Contacts server for discussions of a specific group
-# @param : server , socket of server
-# @param : groupName , the target group we want discussions for
-# @param : numStep , number of discussion posts to display at a time. 
-def perform_rg(server,groupName, numStep):
-    server.send("RG:"+str(groupName))
-    start_polling(server)
-    print("Finished executing rg : " + str(groupName))
-
-# Attempts to store user preference data, and closes server socket before exiting.
-# @param : server , server's socket
-def perform_logout(server):
-    print("Performing logging out user")
-    global userData
-    try:
-        #update user preferences and store back into file
-        database = load_json_data(CLIENT_DATA_ADDR)
-        database[currentUserId] = userData
-        store_json_data(CLIENT_DATA_ADDR,database)
-    except:
-        print("FAILED TO STORE USER DATA AT ADDRESS: " + str(CLIENT_DATA_ADDR))
-    print("Closing connection with the server ")
-    server.close()
-    print("Session Terminated Successfully")
     
 
 
@@ -319,13 +378,15 @@ def authenticated_action(args,server):
             perform_sg(server, DEFAULT_STEP)
     elif(args[0]=="rg"):
         print("executing command rg ...")
+        if(verbose) : print("arguments : " + str(args))
         if(len(args)<2):
             print("Not enough arguments. Command rg has 1 mandatory arg and one optional arg")
-        #try if valid N argument (N = num to display), else use default value
-        try:                            
-            perform_rg(server, str(args[1]),int(args[2]))
-        except:
-            perform_rg(server, str(args[1]), DEFAULT_STEP)
+        else:
+            #try if valid N argument (N = num to display), else use default value
+            try:                            
+                perform_rg(server, str(args[1]),int(args[2]))
+            except:
+                perform_rg(server, str(args[1]), DEFAULT_STEP)
     elif(args[0]=="logout"):
         perform_logout(server)
         exit()

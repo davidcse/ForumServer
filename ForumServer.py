@@ -5,20 +5,27 @@ from StringIO import StringIO
 #----------------------#
 #   GLOBAL DATA        #
 #----------------------#
+server = ""
+port = 1200
 
 # Filepath to the json-formatted text file
 DATABASE_FILE_ADDR = "ServerDataFile.txt"
 
 #sample Data
 sampleData1 = {
-        'group1': {
+        'comp.programming': {
                 "post1":{
                         "author1":"paul",
-                        "subject":"firstpost",
+                        "subject":"Sort a Python dictionary by value",
                         "body":"The very first sentence"
+                    },
+                "post2":{
+                        "author1":"Seth",
+                        "subject":"How to print to stderr in Python?",
+                        "body":"The very second sentence"
                     }
             },
-        'group2': {
+        'comp.os.threads': {
                 "post1":{
                         "author1":"paul",
                         "subject":"firstpost",
@@ -30,33 +37,64 @@ sampleData1 = {
 #application data
 database = {}
 # debug logging toggle variable
-verbose = 1  
+verbose = 1
 
+#------------------------#
+#   GET / SET DATA(BASE) #
+#------------------------#
+def get_all_groups():
+    groupList = []
+    for key,value in database.items():
+        groupList.append(key)
+    return groupList
+
+def get_posts(groupName):
+    try:
+        targetGroup = database[groupName]
+        postList = []
+        for key,value in targetGroup.items():
+            postList.append(key)
+        return postList
+    except:
+        print("Error getting posts for group : " + str(groupName) + ", could not find in database")
+        return None
 
 #------------------------#
 #   SERVER PROCEDURES    #
 #------------------------#
-def execute_help(client):
-    client.send("help menu : 1) 2) 3)")
 
-def execute_post(client):
-    client.send("post successful")
-    print("client posted to server")
+def fulfill_AG_request(client):
+    groups = get_all_groups()
+    strBuffer = StringIO()
+    json.dump(groups,strBuffer)
+    if(verbose): print("Preparing to send AG response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
+
+def fulfill_SG_request(client):
+    groups = get_all_groups()
+    strBuffer = StringIO()
+    json.dump(groups,strBuffer)
+    if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
+
+def fulfill_RG_request(client,groupName):
+    posts = get_posts(groupName)
+    strBuffer = StringIO()
+    json.dump(posts,strBuffer)
+    if(verbose): print("Preparing to send RG response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
 
 def execute_default(client):
     client.send("procedure not found")
     print("client requested a non-existent procedure")
 
-def execute_login(client):
-    client.send("login successful: welcome")
-    print("Logged in client ")
     
 
 #Dictionary of procedure functions, which must be defined above. 
 procedures={
-        'post_command' : execute_post,
-        'help_command' : execute_help,
-        'login_command' : execute_login
+        'AG:' : fulfill_AG_request,
+        'SG:' : fulfill_SG_request,
+        'RG:' : fulfill_RG_request
     }
 #Get server's procedure method to handle client request
 def getProcedure(procedure_key):
@@ -104,49 +142,51 @@ def init_database_object():
             print("Database:")
             print(database)
 
+
+#--------------------#
+#   SCRIPT           #
+#--------------------#
+
+# set up server application data from data file
 init_database_object()
-
-#-----------------#
-#   TCP/IP        #
-#-----------------#
-server = ""
-port = 1200
-
 # Establish a TCP/IP socket
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-print('Initialized Socket')
+if(verbose): print('Initialized Socket')
 # Bind to TCP port 
 s.bind((server,port))
-print('Server binded at : ' + str(port))
+if(verbose): print('Server binded at : ' + str(port))
 # ... and listen for anyone to contact you
 # queueing up to five requests if you get a backlog
 s.listen(5)
-print('server is listening')
+if(verbose): print('server is listening')
 
+
+# Wait for a connection
+connect, address = s.accept()
 while True:
-        # Wait for a connection
-        connect, address = s.accept()
+  #      # Wait for a connection
+  #      connect, address = s.accept()
         # Typically fork at this point
 
         # Receive up to 1024 bytes
         resp = (connect.recv(1024)).strip()
-        print("received message : " + str(resp) + " from : " + str(address))
-        # And if the user has sent a "SHUTDOWN"
-        # instruction, do so (ouch! just a demo)
-        if(resp=="SHUTDOWN"):
+        if(verbose): print("received message : " + str(resp) + " from : " + str(address))
+        # If the connection is lost
+        if(resp == ""):
+            connect.close()
+        # And if the user has sent a "SHUTDOWN" instruction
+        elif(resp=="SHUTDOWN"):
             break
         else:
             requested_procedure = getProcedure(resp)
             requested_procedure(connect)
 
         # Send an answer
-        connect.send("Server finished performing: '" + resp + "' \n")
+        connect.send("FIN")
 
         # And there could be a lot more here!
 
-        # When done with a connection close it
-        connect.close()
-        print("\ndone " + str(address))
+        if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
         # And loop for / wait for another client
 
 #close the server

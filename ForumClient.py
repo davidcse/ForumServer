@@ -8,7 +8,7 @@ from os import path
 #--------------------#
 SERVER = "127.0.0.1"
 PORT = 1200
-CLIENT_DATA_ADDR = "./ForumClientData.txt"
+CLIENT_DATA_ADDR = "./Data/ForumClientData.txt"
 DEFAULT_STEP = 5
 verbose = 1
 
@@ -19,17 +19,13 @@ currentUserId = ""
 # sample data file content if none previously exists.
 sampleUserData = {
     '567':{
-                'subscribed':['comp.programming','comp.os.threads'],
-                'read':{
-                        'comp.programming':['post1']
-                    }
-            }
+             'subscribed':['comp.programming','comp.os.threads'],
+              'read':{
+                        'comp.programming':['programming post 1','programming post 3'],
+                        'comp.os.threads':['threads post 2']
+                     }
+          }
     }
-
-#key commands
-LOGIN_COMMAND = "login_command"
-POST_COMMAND = "post_command"
-HELP_COMMAND = "help_command"
 
 #-----------------------#
 #   DATA MANAGEMENT     #
@@ -71,7 +67,7 @@ def save_file():
 
 # Attempts to load a json txt file for client data, else creates one with sample data
 # @filePath : string , where to load and store from the data file. 
-def startup_client_file_database(filePath):
+def load_file(filePath):
     print("Checking default data file address : " + str(filePath))
     global userData
     if(path.exists(filePath)):
@@ -137,9 +133,18 @@ def protocol_grouprange(start,end):
     if(verbose):print("protocol : " + build_string)
     return build_string
 
-
-
-
+def protocol_grouparray(groupNameArray):
+    if(not isinstance(groupNameArray,list)):
+        print("Can not form a group array protocol, input must be a list of strings of groupnames")
+        return
+    build_string = 'GETGROUPARRAY:{"GROUPS":['
+    for i in range(len(groupNameArray)):
+        build_string = build_string +'"' +str(groupNameArray[i]) + '"'
+        if(i < (len(groupNameArray)-1)):
+            build_string = build_string +  ","
+    build_string = build_string + ']}'
+    if(verbose):print("protocol : " + build_string)
+    return build_string
 
 
 
@@ -199,9 +204,10 @@ def print_server_response(serverResp):
 
 def print_commandline_interface():
     print("\n\n*****************************")
-    print(" AVAILABLE COMMAND OPTIONS ")
+    print("**\tMAIN MENU\t **")
     print(" 1) login [YOUR ID] " )
-    print(" 2) help  " )
+    print(" 2) special instructions" )
+    print(" 3) help " )
     print("******************************")
 
 
@@ -210,7 +216,7 @@ def print_commandline_interface():
 def user_interface(server):
     #display options and get user choice
     print_commandline_interface()
-    user_input = raw_input("Please choose an option\n>>")
+    user_input = raw_input("\n\n>>")
     args = trim_to_arg_array(user_input)
     #perform the processed user arguments
     perform_action(args,server)
@@ -245,9 +251,9 @@ def authenticated_action(args,server):
         print("executing command sg ...")
         #try if valid N argument (N = num to display), else use default value
         try:                            
-            perform_sg(server, int(args[1]))
+            perform_sg_mainloop(server, int(args[1]))
         except:
-            perform_sg(server, DEFAULT_STEP)
+            perform_sg_mainloop(server, DEFAULT_STEP)
     elif(args[0]=="rg"):
         print("executing command rg ...")
         if(verbose) : print("arguments : " + str(args))
@@ -267,9 +273,6 @@ def authenticated_action(args,server):
     if(verbose) : print("completed attempt for authenticated_action")
 
         
-
-
-
 
 #********************#
 #   AG = ALL GROUPS  #
@@ -326,6 +329,9 @@ def perform_ag_mainloop(server,numStep):
 
 # print formatted response for an AG request
 def formatted_AG_response(response, start_num):
+    print("\n\n**************************")
+    print("**    ALL GROUPS    ***")
+    print("**************************")
     subscribed_groups = get_subscriptions()
     numCount = start_num
     for groupName in response:
@@ -397,45 +403,93 @@ def command_AG_helpmenu():
 #   SG = SUBSCRIBED GROUPS #
 #**************************#
 
-# Performs subscription to group functions
+# Asks server to display N-number of subscribed groups available.
 # @param : server , socket of server
-# @param : numStep , number of subscribed groups to display at a time. 
-def perform_sg(server, numStep):
-    server.send("SG:")
-    response = start_polling(server)
-    if(response != None):
-        sg_submenu_interface(response,numStep)
-    print("Finished executing sg.")
+# @param : numStep , number of groups to display at a time. 
+def perform_sg_mainloop(server,numStep):
+    # get groups [n,m] from server , where (m - n) = results display number.
+    subscribed_array = get_subscriptions()
+    rangeStart = 1
+    rangeEnd = rangeStart + numStep - 1
+    server.send(protocol_grouparray(subscribed_array[(rangeStart-1):(rangeEnd)]))
+    server_response = start_polling(server)
+    # handle and display the server's response
+    if(server_response == None or server_response ==[] or server_response == "" or server_response == {}):
+        if(verbose): print("Could not evaluate response from server.")
+    else:
+        # print most recent server response and ask for submenu input
+        while True:
+            formatted_SG_response(server_response, rangeStart)
+            print("\n*******  SG - Submenu *******")
+            user_input = raw_input("\n>>")
+            args = trim_to_arg_array(user_input)
+            # resume evaluation of further user input. 
+            if len(args) ==0 :
+                print("Error : nothing entered")
+            elif args[0] == "u" :
+                print("executing SG_u ...")
+                execute_SG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)
+            elif args[0] == "n" :
+                print("executing AG_n ...")
+                # recalculate range variables and query server for groups within those range
+                subscribed_array = get_subscriptions()
+                rangeStart = rangeStart + numStep
+                rangeEnd = rangeStart + numStep - 1
+                server.send(protocol_grouparray(subscribed_array[(rangeStart-1):(rangeEnd)]))
+                server_response = start_polling(server)
+                # recontinue submenu control flow evaluation or else exit command.
+                if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
+                    print("server did not send any more group information ... ")
+                    break
+            elif args[0] == "q" :
+                print("quitting SG menu")
+                break
+            else:
+                print("invalid SG subcommand")
+                command_SG_helpmenu()
+    #completed the ag submenu            
+    if(verbose) : print("Finished executing SG menu.")
 
-
-
-# Requests user for SG Submenu commands, and tries to execute it.
-def sg_submenu_interface(response,numStep):
-    displayNum = 1
-    formatted_SG_response(response,displayNum)
-    while True:
-        print("\n\n***  SG - Submenu ****")
-        user_input = raw_input("\n>>")
-        args = trim_to_arg_array(user_input)
-        breakStatus = perform_action_sg_submenu(args, displayNum, numStep)
-        if(breakStatus): break
 
 # Formatted response for an SG request
 def formatted_SG_response(response, start_num):
-    subscribed_groups = get_subscriptions()
-    matched_subscribed_group = []
-    #build a list of groups that are common to both the server response and this user's subscription preference.
-    for i in response:
-        if i in subscribed_groups:
-            matched_subscribed_group.append(i)
+    print("\n\n**************************")
+    print("**  SUBSCRIBED GROUPS  ***")
+    print("**************************")
     # print the subscribed groups formatted way
     numCount = start_num
-    for i in range(len(matched_subscribed_group)):
-        num_unread = get_num_unread_posts(matched_subscribed_group[i],response[matched_subscribed_group[i]])
-        format_line = str(numCount) + ". " +str(num_unread) + " " + str(matched_subscribed_group[i])
+    for i in response:
+        num_unread = get_num_unread_posts(i,response[i])
+        format_line = str(numCount) + ". " +str(num_unread) + " " + str(i)
+        numCount = numCount + 1
         print(format_line)
 
-        
+
+#fulfills client requested functions in the SG submenu
+# @param args : list of str , contains user processed input.
+def perform_action_sg_submenu(args,option_start_num, step_num):
+    if len(args) ==0 :
+        print("Error : nothing entered")
+    elif args[0] == "u" :
+        print("executing SG_u ...")
+    elif args[0] == "n" :
+        print("executing SG_n ...")
+    elif args[0] == "q" :
+        print("executing SG_q ...")
+        return True
+    else:
+        print("invalid SG subcommand")
+        command_SG_helpmenu()
+
+
+
+# SG help menu
+def command_SG_helpmenu():
+    print("\n SG Subcommands")
+    print("u [m...n] : unsuscribe from group numbers")
+    print("n [n] : display next n groups")
+    print("q : quit submenu")
+
 
 #**************************#
 #   RG = READ GROUP        #
@@ -480,23 +534,6 @@ def formatted_RG_response(response, groupName, start_num):
         
 
 
-#fulfills client requested functions in the SG submenu
-# @param args : list of str , contains user processed input.
-def perform_action_sg_submenu(args,option_start_num, step_num):
-    if len(args) ==0 :
-        print("Error : nothing entered")
-    elif args[0] == "u" :
-        print("executing SG_u ...")
-    elif args[0] == "n" :
-        print("executing SG_n ...")
-    elif args[0] == "q" :
-        print("executing SG_q ...")
-        return True
-    else:
-        print("invalid SG subcommand")
-        command_SG_helpmenu()
-
-
 #fulfills client requested functions in the RG submenu
 # @param args : list of str , contains user processed input.
 def perform_action_rg_submenu(args, option_start_num, step_num):
@@ -514,16 +551,6 @@ def perform_action_rg_submenu(args, option_start_num, step_num):
     else:
         print("invalid RG subcommand")
         command_AG_helpmenu()
-
-# SG help menu
-def command_SG_helpmenu():
-    print("\n SG Subcommands")
-    print("u [m...n] : unsuscribe from group numbers")
-    print("n [n] : display next n groups")
-    print("q : quit submenu")
-
-
-
 
 
 #------------------------------#
@@ -563,7 +590,7 @@ def start_polling(s):
 # create socket
 socket = create_tcp_socket(SERVER,PORT)
 # try loading user data on local machine
-startup_client_file_database(CLIENT_DATA_ADDR)
+load_file(CLIENT_DATA_ADDR)
 # perform user interaction
 while True:
     user_interface(socket)

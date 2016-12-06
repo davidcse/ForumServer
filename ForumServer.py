@@ -9,27 +9,48 @@ server = ""
 port = 1200
 
 # Filepath to the json-formatted text file
-DATABASE_FILE_ADDR = "ServerDataFile.txt"
+DATABASE_FILE_ADDR = "./Data/ServerDataFile.txt"
 
 #sample Data
 sampleData1 = {
         'comp.programming': {
-                "post1":{
+                "programming post 1":{
                         "author1":"paul",
                         "subject":"Sort a Python dictionary by value",
                         "body":"The very first sentence"
                     },
-                "post2":{
+                "programming post 2":{
                         "author1":"Seth",
-                        "subject":"How to print to stderr in Python?",
+                        "subject":"How to print to stderr in Python 2.7?",
+                        "body":"The very second sentence"
+                    },
+                "programming post 3":{
+                        "author1":"Bob",
+                        "subject":"How to print to stderr in Python 3.4?",
                         "body":"The very second sentence"
                     }
+                
             },
         'comp.os.threads': {
-                "post1":{
-                        "author1":"paul",
-                        "subject":"firstpost",
-                        "body":"The very first sentence"
+                "threads post 1":{
+                        "author1":"George",
+                        "subject":"multithreading",
+                        "body":"use p_threads"
+                    },
+                "threads post 2":{
+                        "author1":"Manuel",
+                        "subject":"semaphores",
+                        "body":"Has p() and v()"
+                    },
+                "threads post 3":{
+                        "author1":"Robert",
+                        "subject":"mutex",
+                        "body":"mutex lock down"
+                    },
+                "threads post 4":{
+                        "author1":"Wilson",
+                        "subject":"multiprocessors",
+                        "body":"spin locks"
                     }
             }
     }
@@ -76,6 +97,13 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
     if(verbose): print("Preparing to send grouprange response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
+def fulfill_grouparray_request(client, group_dictionary):
+    strBuffer = StringIO()
+    json.dump(group_dictionary,strBuffer)
+    if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
+
+
 def fulfill_AG_request(client):
     groups = get_all_groups()
     strBuffer = StringIO()
@@ -102,19 +130,6 @@ def execute_default(client):
     print("client requested a non-existent procedure")
 
     
-
-#Dictionary of procedure functions, which must be defined above. 
-procedures={
-        'AG' : fulfill_AG_request,
-        'SG' : fulfill_SG_request,
-        'RG' : fulfill_RG_request
-    }
-#Get server's procedure method to handle client request
-def getProcedure(procedure_key):
-    found_request = procedures.get(procedure_key,execute_default)
-    return found_request
-
-
 #----------------------#
 #  DATA MANAGEMENT     #
 #----------------------#
@@ -171,6 +186,26 @@ def perform_protocol_grouprange(contentHeaders):
     return 
 
 
+def perform_protocol_grouparray(contentHeaders):
+    try:
+        jso = json.loads(contentHeaders)
+        print(jso)
+        requestArray = jso["GROUPS"]
+    except:
+        print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
+        return
+    # created request array, so fulfill the request. 
+    responseDict = {}
+    try:
+        for i in requestArray:
+            responseDict[i] = database[i]
+    except KeyError:
+        print("Client requested a group that does not exist on server")
+    return responseDict
+            
+                        
+                        
+
 #--------------------#
 #   SCRIPT           #
 #--------------------#
@@ -205,17 +240,17 @@ while True:
         # And if the user has sent a "SHUTDOWN" instruction
         elif(resp=="SHUTDOWN"):
             break
+        # Check against list of protocols, to fulfill the request. 
         else:
             clientRequest = resp.split(":",1)
             if(clientRequest[0]=="GETGROUPRANGE"):
                 group_ranges = perform_protocol_grouprange(clientRequest[1])
                 fulfill_grouprange_request(connect, group_ranges[0],group_ranges[1])
+            elif(clientRequest[0]=="GETGROUPARRAY"):
+                group_dictionary = perform_protocol_grouparray(clientRequest[1])
+                fulfill_grouparray_request(connect,group_dictionary)
             else:
-                requested_procedure = getProcedure(clientRequest[0])
-                if(requested_procedure == fulfill_RG_request):
-                    if verbose : print("client sent a RG request for group : " + str(clientRequest[1]))
-                    requested_procedure(connect,str(clientRequest[1]))
-                requested_procedure(connect)
+               print("client did not send a valid protocol matched to a request")
 
         # Send an answer
         connect.send("FIN")

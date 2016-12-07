@@ -141,12 +141,20 @@ def protocol_grouprange(start,end):
     if(verbose):print("protocol : " + build_string)
     return build_string
 
+
+# asks server for an array of posts, within range start to end, for the specified group. 
+def protocol_postrange(groupName,start,end):
+    build_string = 'GETPOSTRANGE:{"GROUPID":'+ groupName + ',"START":'+ str(start) + ',"END":'+str(end)+'}'
+    if(verbose):print("protocol : " + build_string)
+    return build_string
+
+
 # protocol to ask server to send all the requested groups in the array, and all of the posts belonging to each group. 
-def protocol_grouparray(groupNameArray):
+def protocol_group_items(groupNameArray):
     if(not isinstance(groupNameArray,list)):
         print("Can not form a group array protocol, input must be a list of strings of groupnames")
         return
-    build_string = 'GETGROUPARRAY:{"GROUPS":['
+    build_string = 'GETGROUPITEMS:{"GROUPS":['
     for i in range(len(groupNameArray)):
         build_string = build_string +'"' +str(groupNameArray[i]) + '"'
         if(i < (len(groupNameArray)-1)):
@@ -155,14 +163,16 @@ def protocol_grouparray(groupNameArray):
     if(verbose):print("protocol : " + build_string)
     return build_string
 
+
 # protocol to ask server to add a post to the discussion group. 
 def protocol_setpost_id(group,post_id,post_content):
     build_string = 'SETPOSTID:{'+'"START":'+ str(start) + ',"END":'+str(end)+'}'
     if(verbose):print("protocol : " + build_string)
     return build_string
 
+
 # protocol to ask server to retrieve a post under the given group id. 
-def protocol_getpost_id(group_id,post_id):
+def protocol_get_postid(group_id,post_id):
     build_string = 'GETPOSTID:{"GROUPID":'+str(group_id)+',"POSTID":'+ str(post_id)+'}'
     if(verbose):print("protocol : " + build_string)
     return build_string
@@ -434,7 +444,7 @@ def perform_sg_mainloop(server,numStep):
     subscribed_array = get_subscriptions()
     rangeStart = 1
     rangeEnd = rangeStart + numStep - 1
-    server.send(protocol_grouparray(subscribed_array[(rangeStart-1):(rangeEnd)]))
+    server.send(protocol_group_items(subscribed_array[(rangeStart-1):(rangeEnd)]))
     server_response = start_polling(server)
     # handle and display the server's response
     if(server_response == None or server_response ==[] or server_response == "" or server_response == {}):
@@ -459,7 +469,7 @@ def perform_sg_mainloop(server,numStep):
                 subscribed_array = get_subscriptions()
                 rangeStart = rangeStart + numStep
                 rangeEnd = rangeStart + numStep - 1
-                server.send(protocol_grouparray(subscribed_array[(rangeStart-1):(rangeEnd)]))
+                server.send(protocol_group_items(subscribed_array[(rangeStart-1):(rangeEnd)]))
                 server_response = start_polling(server)
                 # recontinue submenu control flow evaluation or else exit command.
                 if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
@@ -536,20 +546,80 @@ def command_SG_helpmenu():
 #   RG = READ GROUP        #
 #**************************#
 
-# Contacts server for discussions of a specific group
+# Asks server to display N-number of posts available for a specified group.
 # @param : server , socket of server
-# @param : groupName , the target group we want discussions for
-# @param : numStep , number of discussion posts to display at a time. 
-def perform_rg(server,groupName, numStep):
-    server.send("RG:"+str(groupName))
-    server_resp = start_polling(server)
-    if(server_resp != None):
-        rg_submenu_interface(server_resp,groupName, numStep)
-    print("Finished executing rg : " + str(groupName))    
+# @groupName : str, name of the target group. 
+# @param : numStep , number of groups to display at a time. 
+def perform_rg_mainloop(server, groupName, numStep):
+    # get posts [n,m] from server for the specified group, where (m - n) = results display number.
+    rangeStart = 1
+    rangeEnd = rangeStart + numStep - 1
+    server.send(protocol_postarray(groupName,rangeStart,rangeEnd))
+    server_response = start_polling(server)
+    # handle and display the server's response
+    if(server_response == None or server_response ==[] or server_response == "" or server_response == {}):
+        if(verbose): print("Could not evaluate response from server.")
+    else:
+        # print most recent server response and ask for submenu input
+        while True:
+            formatted_RG_response(server_response, rangeStart)
+            user_input = raw_input("\nRG >>")
+            args = trim_to_arg_array(user_input)
+            # resume evaluation of further user input. 
+            if len(args) ==0 :
+                print("Error : nothing entered")
 
+
+
+
+                
+            elif args[0] == "u" :
+                unsubscribed_groups = execute_SG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)
+                if(unsubscribed_groups != None and unsubscribed_groups != []):
+                    # remove the recently unsubscribed group from the server response to be redisplayed in the next SG-Format.
+                    server_response = {key: value for key, value in server_response.items() if key not in  unsubscribed_groups}
+            elif args[0] == "n" :
+                print("Displaying next " + str(numStep) + "results")
+                # recalculate range variables and query server for groups within those range
+                subscribed_array = get_subscriptions()
+                rangeStart = rangeStart + numStep
+                rangeEnd = rangeStart + numStep - 1
+                server.send(protocol_group_items(subscribed_array[(rangeStart-1):(rangeEnd)]))
+                server_response = start_polling(server)
+                # recontinue submenu control flow evaluation or else exit command.
+                if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
+                    print("server did not send any more group information ... ")
+                    break
+                
+            elif args[0] == "q" :
+                print("quitting SG Mode")
+                break
+            else:
+                try:
+                    idNum = int(args[0])
+                    relativeNum = idNum - rangeStart
+                    if(relativeNum > (len(server_response) -1)):
+                        print("The post id you have entered is larger than the available range")
+                    else:
+                        post_id = list(server_response)[relativeNum]
+                        # stay at submenu until completed submenu mode.
+                        interface_RG_submenu(groupName,post_id,numStep)
+                        # exited submenu for the post, so continue
+                except:
+                    print("invalid SG subcommand")
+                    command_SG_helpmenu()
+    #completed the ag submenu            
+    if(verbose) : print("Finished executing SG menu.")
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CONTINUE HERE : WORK ON RG [ID] TO RETRIEVE SPECIFIC POST
 
 # Requests user for RG Submenu commands, and tries to execute it.
 # @response : the string parsed to json obj. from server. 
+def interface_RG_submenu(groupName,post_id, numStep):
+    protocol_str = protocol_get_postid(groupName ,post_id)
+    server.send(protocol_str)
+
+
 def rg_submenu_interface(response,groupName,numStep):
     displayNum = 1
     formatted_RG_response(response,groupName, displayNum)

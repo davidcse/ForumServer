@@ -77,6 +77,14 @@ def get_posts(groupName):
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
         return None
 
+def get_post_id_content(groupName,post_id):
+    try:
+        postContent = database[groupName][post_id]
+        return postContent
+    except:
+        print("Error getting specific post content from " + str(post_id) + " in group " + str(groupName))
+
+
 def set_post(groupName,post_id,post):
     database[groupName][post_id]= post
     
@@ -85,6 +93,10 @@ def set_post(groupName,post_id,post):
 #   SERVER PROCEDURES    #
 #------------------------#
 
+# fulfills a request for group id's within the server database, for a given range of indexes. 
+# @client : obj, client socket
+# @rangeStart : int , start of the post range
+# @rangeEnd : int , end of the post range 
 def fulfill_grouprange_request(client,rangeStart, rangeEnd):
     groups = get_all_groups()
     if(verbose) : print("all groups on server " + str(groups))
@@ -101,21 +113,44 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
     if(verbose): print("Preparing to send grouprange response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
-def fulfill_grouparray_request(client, group_dictionary):
+
+# fulfills a request for post id's within a group to the client. 
+# @client : obj, client socket
+# @groupName : str, name of the group
+# @start : int , start of the post range
+# @end : int , end of the post range 
+def fulfill_postrange_request(client,groupName,start,end):
+    posts = get_posts(groupName)
+    response_postarray = posts[(start-1):end]
+    strBuffer = StringIO()
+    json.dump(response_postarray,strBuffer)
+    if(verbose): print("Preparing to send GETPOSTRANGE response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
+
+
+# fulfills a group items request for the client. 
+# @client : obj, client socket
+# @group_dictionary: dictionary, where key is groupname and value is all the posts in the group, including post content. 
+def fulfill_group_items_request(client, group_dictionary):
     strBuffer = StringIO()
     json.dump(group_dictionary,strBuffer)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
 
-def fulfill_RG_request(client,groupName):
-    posts = get_posts(groupName)
+# fulfills a getpost request for the client. 
+# @client : obj, client socket
+# @post_identifiers : list , list[0] = group that post belongs to, list[1] = post id
+def fulfill_post_id_request(client,groupName,postId):
     strBuffer = StringIO()
-    json.dump(posts,strBuffer)
-    if(verbose): print("Preparing to send RG response: " + strBuffer.getvalue())
+    content = get_post_id_content(groupName,postId)
+    if(content == None):
+        return
+    resp = {postId : content}
+    json.dump(resp,strBuffer)
+    if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
-
-
+            
 
     
 #----------------------#
@@ -174,25 +209,52 @@ def perform_protocol_grouprange(contentHeaders):
     return 
 
 
-def perform_protocol_grouparray(contentHeaders):
+def perform_protocol_group_items(contentHeaders):
+    # extract the groups for which post items are requested.
     try:
         jso = json.loads(contentHeaders)
-        print(jso)
-        requestArray = jso["GROUPS"]
+        if(verbose) : print(jso)
+        requested_groups_array = jso["GROUPS"]
     except:
         print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
         return
-    # created request array, so fulfill the request. 
+    # create mapping of the group and the items it contains
     responseDict = {}
     try:
-        for i in requestArray:
-            responseDict[i] = database[i]
-    except KeyError:
-        print("Client requested a group that does not exist on server")
-    return responseDict
+        for g in requested_groups_array:
+            responseDict[g] = database[g]
+        return responseDict
+    except Exception as error:
+        print("Client requested a set of group that does not exist on server")
+    return
+
+
+def perform_protocol_postrange(contentHeaders):
+    reponseArray = []
+    try:
+        jso = json.loads(contentHeaders)
+        if(verbose) : print(jso)
+        parentGroup = jso["GROUPID"]
+        s = int(jso["START"])
+        e = int(jso["END"])
+        responseArray[parentGroup,s,e]
+        return responseArray
+    except:
+        print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
+        return
+
             
-                        
-                        
+def perform_protocol_postid(contentHeaders):
+    identifiers = []
+    try:
+        jso = json.loads(contentHeaders)
+        if(verbose) : print(jso)
+        identifiers.append(jso["GROUPID"])
+        identifiers.append(jso["POSTID"])
+        return identifiers
+    except:
+        print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
+    return 
 
 #--------------------#
 #   SCRIPT           #
@@ -220,33 +282,40 @@ connect, address = s.accept()
 while True:
     try:
         # Typically fork at this point
-        # Receive up to 1024 bytes
+
+        # Receive up to 1024 bytes 
         resp = (connect.recv(1024)).strip()
         if(verbose): print("received message : " + str(resp) + " from : " + str(address))
-        # If the connection is lost
-        if(resp == ""):
-            connect.close()
-        # And if the user has sent a "SHUTDOWN" instruction
-        elif(resp=="SHUTDOWN"):
-            break
-        # Check against list of protocols, to fulfill the request. 
-        else:
-            clientRequest = resp.split(":",1)
-            if(clientRequest[0]=="GETGROUPRANGE"):
-                group_ranges = perform_protocol_grouprange(clientRequest[1])
+        
+        # separate the type of protocol from the contentHeaders
+        clientRequest = resp.split(":",1)
+        
+        # Check against list of known protocols, to fulfill the request.
+        if(clientRequest[0]=="GETGROUPRANGE"):
+            group_ranges = perform_protocol_grouprange(clientRequest[1])
+            if(group_ranges != None):
                 fulfill_grouprange_request(connect, group_ranges[0],group_ranges[1])
-            elif(clientRequest[0]=="GETGROUPARRAY"):
-                group_dictionary = perform_protocol_grouparray(clientRequest[1])
-                fulfill_grouparray_request(connect,group_dictionary)
-            else:
-               print("client did not send a valid protocol matched to a request")
+        elif(clientRequest[0]=="GETPOSTRANGE"):
+            post_id_params = perform_protocol_postrange(clientRequest[1])
+            if(post_id_params != None):
+                fulfill_postrange_request(connect,post_id_params[0],post_id_params[1],post_id_params[2])
+        elif(clientRequest[0]=="GETGROUPITEMS"):
+            group_dictionary = perform_protocol_group_items(clientRequest[1])
+            if(group_dictionary != None):
+                fulfill_group_items_request(connect,group_dictionary)
+        elif(client_Request[0] =="GETPOSTID"):
+            post_id_params = perform_protocol_postid(clientRequest[1])
+            if(post_id_params  != None):
+                fulfill_post_id_request(connect,post_id_params[0],post_id_params[1])
+        else:
+            # client violated protocol in some way.                        
+            print("client did not send a valid protocol matched to a request")
 
-        # Send an answer
-        connect.send("FIN")
-
-        # And there could be a lot more here!
-
+        #send acknowledgement that data transfer is finished. 
+        connect.send("FIN")           
         if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
+        
+    # Issue with connected client socket.
     except:
         print("Server encountered client not available, closing connection...")
         connect.close()

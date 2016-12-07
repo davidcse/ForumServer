@@ -2,7 +2,7 @@ import socket
 import json
 from StringIO import StringIO
 from os import path 
-
+import traceback
 #--------------------#
 #   GLOBAL DATA      #
 #--------------------#
@@ -10,7 +10,7 @@ SERVER = "127.0.0.1"
 PORT = 1200
 CLIENT_DATA_ADDR = "./Data/ForumClientData.txt"
 DEFAULT_STEP = 5
-verbose = 1
+verbose = 0
 
 # dictionary storing user settings for the current client.
 userData ={}
@@ -18,7 +18,7 @@ currentUserId = ""
 
 # sample data file content if none previously exists.
 sampleUserData = {
-    '567':{
+    'Joe':{
              'subscribed':['comp.programming','comp.os.threads'],
               'read':{
                         'comp.programming':['programming post 1','programming post 3'],
@@ -106,10 +106,16 @@ def mark_as_read(groupName,post):
     userData["read"][groupName].append(post)
 
 def mark_as_subscribed(groupName):
-    userData["subscribed"].append(groupName)
-
+    if(groupName not in userData["subscribed"]):
+        userData["subscribed"].append(groupName)
+    else:
+        print("User is already subscribed to the group: " + str(groupName))
+        
 def mark_as_unsubscribed(groupName):
-    userData["subscribed"].remove(groupName)
+    if(groupName in userData["subscribed"]):
+        userData["subscribed"].remove(groupName)
+    else:
+        print("User is already unsubscribed to the group: " + str(groupName))
     
 def get_num_unread_posts(groupName, serverGroupObj):
     try:
@@ -128,11 +134,14 @@ def get_num_unread_posts(groupName, serverGroupObj):
 #--------------------------#
 #   BUILD PROTOCOL HELPERS #
 #--------------------------#
+
+# protocol to ask server to retrieve names of groups between the range numbers, in the server's database index. 
 def protocol_grouprange(start,end):
     build_string = 'GETGROUPRANGE:{'+'"START":'+ str(start) + ',"END":'+str(end)+'}'
     if(verbose):print("protocol : " + build_string)
     return build_string
 
+# protocol to ask server to send all the requested groups in the array, and all of the posts belonging to each group. 
 def protocol_grouparray(groupNameArray):
     if(not isinstance(groupNameArray,list)):
         print("Can not form a group array protocol, input must be a list of strings of groupnames")
@@ -146,6 +155,17 @@ def protocol_grouparray(groupNameArray):
     if(verbose):print("protocol : " + build_string)
     return build_string
 
+# protocol to ask server to add a post to the discussion group. 
+def protocol_setpost_id(group,post_id,post_content):
+    build_string = 'SETPOSTID:{'+'"START":'+ str(start) + ',"END":'+str(end)+'}'
+    if(verbose):print("protocol : " + build_string)
+    return build_string
+
+# protocol to ask server to retrieve a post under the given group id. 
+def protocol_getpost_id(group_id,post_id):
+    build_string = 'GETPOSTID:{"GROUPID":'+str(group_id)+',"POSTID":'+ str(post_id)+'}'
+    if(verbose):print("protocol : " + build_string)
+    return build_string
 
 
 #---------------------------------#
@@ -293,20 +313,17 @@ def perform_ag_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_AG_response(server_response, rangeStart)
-            print("\n*******  AG - Submenu *******")
-            user_input = raw_input("\n>>")
+            user_input = raw_input("\nAG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
             if len(args) ==0 :
                 print("Error : nothing entered")
             elif args[0] == "s" :
-                print("executing AG_s ...")
                 execute_AG_subscribe(args[1:],rangeStart,rangeEnd,server_response)
             elif args[0] == "u" :
-                print("executing AG_u ...")
-                execute_AG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)
+                execute_AG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)           
             elif args[0] == "n" :
-                print("executing AG_n ...")
+                print("Displaying next " + str(numStep) + "results")
                 # recalculate range variables and query server for groups within those range
                 rangeStart = rangeStart + numStep
                 rangeEnd = rangeStart + numStep - 1
@@ -317,7 +334,7 @@ def perform_ag_mainloop(server,numStep):
                     print("server did not send any more group information ... ")
                     break
             elif args[0] == "q" :
-                print("executing AG_q ...")
+                print("quitting AG Mode")
                 break
             else:
                 print("invalid AG subcommand")
@@ -361,12 +378,13 @@ def execute_AG_subscribe(arglist, start, end, response):
                 break
             except:
                 print("Error subscribing to group no. " + str(i))
+                traceback.print_exc()
                 break
 
 
 # unsubscribes the group for this user and saves the preference. 
 def execute_AG_unsubscribe(arglist, start, end, response):
-    print("INSIDE UNSUBSCRIBE")
+    unsubscribed_groups = []
     for i in arglist:
         try:
             print("unsubscribing from number " + str(i))
@@ -376,15 +394,20 @@ def execute_AG_unsubscribe(arglist, start, end, response):
             break
         if(optionNum>=start and optionNum<= end):
             try:
-                mark_as_unsubscribed(response[optionNum-start])
+                # get the group to unsubscribe, remove from program data, then persist to stored file. 
+                unsub_group = response[optionNum-start]
+                mark_as_unsubscribed(unsub_group)
                 save_file()
+                unsubscribed_groups.append(unsub_group)
                 print("unsubscribe to no. " + str(optionNum) + " was successful")
             except IndexError :
                 print("Argument : " + str(i) + " is not within range")
                 break
-            except:
-                print("Error subscribing to group no. " + str(i))
+            except Exception as error:
+                print("Error unsubscribing to group no. " + str(i))
+                traceback.print_exc()
                 break
+    return unsubscribed_groups
 
     
 
@@ -420,17 +443,18 @@ def perform_sg_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_SG_response(server_response, rangeStart)
-            print("\n*******  SG - Submenu *******")
-            user_input = raw_input("\n>>")
+            user_input = raw_input("\nSG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
             if len(args) ==0 :
                 print("Error : nothing entered")
             elif args[0] == "u" :
-                print("executing SG_u ...")
-                execute_SG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)
+                unsubscribed_groups = execute_SG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)
+                if(unsubscribed_groups != None and unsubscribed_groups != []):
+                    # remove the recently unsubscribed group from the server response to be redisplayed in the next SG-Format.
+                    server_response = {key: value for key, value in server_response.items() if key not in  unsubscribed_groups}
             elif args[0] == "n" :
-                print("executing AG_n ...")
+                print("Displaying next " + str(numStep) + "results")
                 # recalculate range variables and query server for groups within those range
                 subscribed_array = get_subscriptions()
                 rangeStart = rangeStart + numStep
@@ -442,13 +466,16 @@ def perform_sg_mainloop(server,numStep):
                     print("server did not send any more group information ... ")
                     break
             elif args[0] == "q" :
-                print("quitting SG menu")
+                print("quitting SG Mode")
                 break
             else:
                 print("invalid SG subcommand")
                 command_SG_helpmenu()
     #completed the ag submenu            
     if(verbose) : print("Finished executing SG menu.")
+
+
+
 
 
 # Formatted response for an SG request
@@ -465,23 +492,37 @@ def formatted_SG_response(response, start_num):
         print(format_line)
 
 
-#fulfills client requested functions in the SG submenu
-# @param args : list of str , contains user processed input.
-def perform_action_sg_submenu(args,option_start_num, step_num):
-    if len(args) ==0 :
-        print("Error : nothing entered")
-    elif args[0] == "u" :
-        print("executing SG_u ...")
-    elif args[0] == "n" :
-        print("executing SG_n ...")
-    elif args[0] == "q" :
-        print("executing SG_q ...")
-        return True
-    else:
-        print("invalid SG subcommand")
-        command_SG_helpmenu()
 
-
+# unsubscribes the group for this user and saves the preference.
+# @arglist : list of user input arguments.
+# @start : starting num
+# @end : ending num
+# @response : json response object from the server.
+# @returns : string name of the unsubscribed group. 
+def execute_SG_unsubscribe(arglist, start, end, response):
+    unsubscribed_groups = []
+    for i in arglist:
+        try:
+            print("unsubscribing from number " + str(i))
+            optionNum = int(i)
+        except:
+            print("arguments contained something that was not an integer")
+            break
+        if(optionNum>=start and optionNum<= end):
+            try:
+                group_to_unsubscribe = list(response)[optionNum-start]
+                mark_as_unsubscribed(group_to_unsubscribe) #convert dict to list on the fly, then access the Nth key element. 
+                save_file()
+                print("unsubscribe to no. " + str(optionNum) + " was successful")
+                unsubscribed_groups.append(group_to_unsubscribe)
+            except IndexError :
+                print("Argument : " + str(i) + " is not within range")
+                break
+            except Exception as error :
+                print("Error unsubscribing to group no. " + str(i))
+                traceback.print_exc()
+                break
+    return unsubscribed_groups
 
 # SG help menu
 def command_SG_helpmenu():
@@ -508,6 +549,7 @@ def perform_rg(server,groupName, numStep):
 
 
 # Requests user for RG Submenu commands, and tries to execute it.
+# @response : the string parsed to json obj. from server. 
 def rg_submenu_interface(response,groupName,numStep):
     displayNum = 1
     formatted_RG_response(response,groupName, displayNum)
@@ -519,8 +561,8 @@ def rg_submenu_interface(response,groupName,numStep):
         if(breakStatus): break
 
 
-
 # Formatted response for an RG request
+# @response : the string parsed to json obj. from server. 
 def formatted_RG_response(response, groupName, start_num):
     read_posts = get_read_posts(groupName)
     numCount = start_num
@@ -532,25 +574,6 @@ def formatted_RG_response(response, groupName, start_num):
         numCount = numCount + 1
         print(format_line)
         
-
-
-#fulfills client requested functions in the RG submenu
-# @param args : list of str , contains user processed input.
-def perform_action_rg_submenu(args, option_start_num, step_num):
-    if len(args) ==0 :
-        print("Error : nothing entered")
-    elif args[0] == "r" :
-        print("executing RG_s ...")
-    elif args[0] == "n" :
-        print("executing RG_u ...")
-    elif args[0] == "p" :
-        print("executing RG_n ...")
-    elif args[0] == "q" :
-        print("executing RG_q ...")
-        return True
-    else:
-        print("invalid RG subcommand")
-        command_AG_helpmenu()
 
 
 #------------------------------#

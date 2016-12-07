@@ -77,6 +77,10 @@ def get_posts(groupName):
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
         return None
 
+def set_post(groupName,post_id,post):
+    database[groupName][post_id]= post
+    
+
 #------------------------#
 #   SERVER PROCEDURES    #
 #------------------------#
@@ -104,20 +108,6 @@ def fulfill_grouparray_request(client, group_dictionary):
     client.send(strBuffer.getvalue())
 
 
-def fulfill_AG_request(client):
-    groups = get_all_groups()
-    strBuffer = StringIO()
-    json.dump(groups,strBuffer)
-    if(verbose): print("Preparing to send AG response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
-
-def fulfill_SG_request(client):
-    groups = database
-    strBuffer = StringIO()
-    json.dump(groups,strBuffer)
-    if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
-
 def fulfill_RG_request(client,groupName):
     posts = get_posts(groupName)
     strBuffer = StringIO()
@@ -125,9 +115,7 @@ def fulfill_RG_request(client,groupName):
     if(verbose): print("Preparing to send RG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
-def execute_default(client):
-    client.send("procedure not found")
-    print("client requested a non-existent procedure")
+
 
     
 #----------------------#
@@ -212,12 +200,15 @@ def perform_protocol_grouparray(contentHeaders):
 
 # set up server application data from data file
 init_database_object()
+
 # Establish a TCP/IP socket
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 if(verbose): print('Initialized Socket')
+
 # Bind to TCP port 
 s.bind((server,port))
 if(verbose): print('Server binded at : ' + str(port))
+
 # ... and listen for anyone to contact you
 # queueing up to five requests if you get a backlog
 s.listen(5)
@@ -227,10 +218,8 @@ if(verbose): print('server is listening')
 # Wait for a connection
 connect, address = s.accept()
 while True:
-  #      # Wait for a connection
-  #      connect, address = s.accept()
+    try:
         # Typically fork at this point
-
         # Receive up to 1024 bytes
         resp = (connect.recv(1024)).strip()
         if(verbose): print("received message : " + str(resp) + " from : " + str(address))
@@ -258,7 +247,10 @@ while True:
         # And there could be a lot more here!
 
         if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
-        # And loop for / wait for another client
+    except:
+        print("Server encountered client not available, closing connection...")
+        connect.close()
+        break
 
 #close the server
 s.close()

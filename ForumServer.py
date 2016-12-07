@@ -1,6 +1,7 @@
 import socket
 import json
 from StringIO import StringIO 
+import traceback
 
 #----------------------#
 #   GLOBAL DATA        #
@@ -15,42 +16,63 @@ DATABASE_FILE_ADDR = "./Data/ServerDataFile.txt"
 sampleData1 = {
         'comp.programming': {
                 "programming post 1":{
-                        "author1":"paul",
-                        "subject":"Sort a Python dictionary by value",
-                        "body":"The very first sentence"
+                        "Group" : "comp.programming",
+                        "Author":"paul",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"Sort a Python dictionary by value",
+                        "Body":"The very first sentence"
                     },
                 "programming post 2":{
-                        "author1":"Seth",
-                        "subject":"How to print to stderr in Python 2.7?",
-                        "body":"The very second sentence"
+                        "Group" : "comp.programming",
+                        "Author":"Seth",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"How to print to stderr in Python 2.7?",
+                        "Body":"The very second sentence"
                     },
                 "programming post 3":{
-                        "author1":"Bob",
-                        "subject":"How to print to stderr in Python 3.4?",
-                        "body":"The very second sentence"
+                        "Group" : "comp.programming",
+                        "Author":"Bob",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"How to print to stderr in Python 3.4?",
+                        "Body":"The very second sentence"
                     }
                 
             },
         'comp.os.threads': {
                 "threads post 1":{
-                        "author1":"George",
-                        "subject":"multithreading",
-                        "body":"use p_threads"
+                        "Group" : "comp.os.threads",
+                        "Author":"George",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"multithreading",
+                        "Body":"use p_threads"
                     },
                 "threads post 2":{
-                        "author1":"Manuel",
-                        "subject":"semaphores",
-                        "body":"Has p() and v()"
+                        "Group" : "comp.os.threads",
+                        "Author":"Manuel",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"semaphores",
+                        "Body":"Has p() and v()"
                     },
                 "threads post 3":{
-                        "author1":"Robert",
-                        "subject":"mutex",
-                        "body":"mutex lock down"
+                        "Group" : "comp.os.threads",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"mutex",
+                        "Body":"mutex lock down"
                     },
                 "threads post 4":{
-                        "author1":"Wilson",
-                        "subject":"multiprocessors",
-                        "body":"spin locks"
+                        "Group" : "comp.os.threads",
+                        "Author":"Wilson",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"multiprocessors",
+                        "Body":"spin locks"
+                    },
+                "threads post 5":{
+                        "Group" : "comp.os.threads",
+                        "Author":"David",
+                        "Date": "12/6/2017 3:10P",
+                        "Subject":"multiprocessors and cores",
+                        "Body":"For multiple processors, it is different.\n You have to take into consideration the many cores.\nTake a look at the architecture of the running program.\nThen in code use spinlock.\nThis is the right way to do things.\nThe performance should be better.\nThe end."
                     }
             }
     }
@@ -63,12 +85,15 @@ verbose = 1
 #------------------------#
 #   GET / SET DATA(BASE) #
 #------------------------#
+
+# returns an array of groupnames on this database
 def get_all_groups():
     groupList = []
     for key,value in database.items():
         groupList.append(key)
     return groupList
 
+# returns the entire dictionary of post contents for the group on this database
 def get_posts(groupName):
     try:
         targetGroup = database[groupName]
@@ -77,6 +102,20 @@ def get_posts(groupName):
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
         return None
 
+# returns the names of the posts only, from this parent group. 
+def get_posts_name_date(groupName):
+    try:
+        targetGroup = database[groupName]
+        post_keys = list(targetGroup)
+        post_name_date = {}
+        for i in post_keys:
+            post_name_date[i] = targetGroup[i]["Date"]
+        return post_name_date
+    except:
+        print("Error getting posts for group : " + str(groupName) + ", could not find in database")
+        return None
+
+# returns the contents of the specific post under the given group. 
 def get_post_id_content(groupName,post_id):
     try:
         postContent = database[groupName][post_id]
@@ -84,7 +123,7 @@ def get_post_id_content(groupName,post_id):
     except:
         print("Error getting specific post content from " + str(post_id) + " in group " + str(groupName))
 
-
+# modifies the contents of the post on the server
 def set_post(groupName,post_id,post):
     database[groupName][post_id]= post
     
@@ -120,10 +159,13 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
 # @start : int , start of the post range
 # @end : int , end of the post range 
 def fulfill_postrange_request(client,groupName,start,end):
-    posts = get_posts(groupName)
-    response_postarray = posts[(start-1):end]
+    posts = get_posts_name_date(groupName)
+    post_list = list(posts)[start-1:end]
+    post_date_dict = {}
+    for i in post_list:
+        post_date_dict[i] = posts[i]
     strBuffer = StringIO()
-    json.dump(response_postarray,strBuffer)
+    json.dump(post_date_dict,strBuffer)
     if(verbose): print("Preparing to send GETPOSTRANGE response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
@@ -144,6 +186,7 @@ def fulfill_group_items_request(client, group_dictionary):
 def fulfill_post_id_request(client,groupName,postId):
     strBuffer = StringIO()
     content = get_post_id_content(groupName,postId)
+    if verbose : print("post id content " + str(content))
     if(content == None):
         return
     resp = {postId : content}
@@ -209,6 +252,21 @@ def perform_protocol_grouprange(contentHeaders):
     return 
 
 
+def perform_protocol_postrange(contentHeaders):
+    reponseArray = []
+    try:
+        jso = json.loads(contentHeaders)
+        if(verbose) : print(jso)
+        parentGroup = jso["GROUPID"]
+        s = int(jso["START"])
+        e = int(jso["END"])
+        responseArray = [parentGroup,s,e]
+        return responseArray
+    except:
+        print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
+        return
+    
+
 def perform_protocol_group_items(contentHeaders):
     # extract the groups for which post items are requested.
     try:
@@ -229,23 +287,11 @@ def perform_protocol_group_items(contentHeaders):
     return
 
 
-def perform_protocol_postrange(contentHeaders):
-    reponseArray = []
-    try:
-        jso = json.loads(contentHeaders)
-        if(verbose) : print(jso)
-        parentGroup = jso["GROUPID"]
-        s = int(jso["START"])
-        e = int(jso["END"])
-        responseArray[parentGroup,s,e]
-        return responseArray
-    except:
-        print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
-        return
 
             
 def perform_protocol_postid(contentHeaders):
     identifiers = []
+    if verbose : print("Evaluating protocol : " + str(contentHeaders))
     try:
         jso = json.loads(contentHeaders)
         if(verbose) : print(jso)
@@ -303,8 +349,9 @@ while True:
             group_dictionary = perform_protocol_group_items(clientRequest[1])
             if(group_dictionary != None):
                 fulfill_group_items_request(connect,group_dictionary)
-        elif(client_Request[0] =="GETPOSTID"):
+        elif(clientRequest[0] =="GETPOSTID"):
             post_id_params = perform_protocol_postid(clientRequest[1])
+            print(post_id_params)
             if(post_id_params  != None):
                 fulfill_post_id_request(connect,post_id_params[0],post_id_params[1])
         else:
@@ -316,8 +363,8 @@ while True:
         if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
         
     # Issue with connected client socket.
-    except:
-        print("Server encountered client not available, closing connection...")
+    except Exception as error :
+        print("Server encountered error, or maybe client not available, closing connection... \n" + str(error))
         connect.close()
         break
 

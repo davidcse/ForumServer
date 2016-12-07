@@ -86,11 +86,11 @@ def login_client_id(client_id):
     try:
         usersList = load_json_data(CLIENT_DATA_ADDR)
         userData = usersList[client_id]
-        print("CLIENT " + str(client_id) + " LOGGED IN SUCCESSFULLY")
+        print("Client " + str(client_id) + " logged in successfully")
         currentUserId = client_id
         return True
     except:
-        print("CLIENT LOGIN FAILED : " + str(client_id))
+        print("Login Failed : " + str(client_id))
     return False
 
 #------------------------------#
@@ -103,7 +103,13 @@ def get_read_posts(groupName):
     return userData["read"][groupName]
 
 def mark_as_read(groupName,post):
-    userData["read"][groupName].append(post)
+    try:
+        parentGroup = userData["read"][groupName]
+    except KeyError :
+        userData["read"][groupName] = []
+        parentGroup = userData["read"][groupName]
+    if(post not in parentGroup):
+        parentGroup.append(post)
 
 def mark_as_subscribed(groupName):
     if(groupName not in userData["subscribed"]):
@@ -144,7 +150,7 @@ def protocol_grouprange(start,end):
 
 # asks server for an array of posts, within range start to end, for the specified group. 
 def protocol_postrange(groupName,start,end):
-    build_string = 'GETPOSTRANGE:{"GROUPID":'+ groupName + ',"START":'+ str(start) + ',"END":'+str(end)+'}'
+    build_string = 'GETPOSTRANGE:{"GROUPID":"'+ str(groupName) + '","START":'+ str(start) + ',"END":'+str(end)+'}'
     if(verbose):print("protocol : " + build_string)
     return build_string
 
@@ -173,7 +179,7 @@ def protocol_setpost_id(group,post_id,post_content):
 
 # protocol to ask server to retrieve a post under the given group id. 
 def protocol_get_postid(group_id,post_id):
-    build_string = 'GETPOSTID:{"GROUPID":'+str(group_id)+',"POSTID":'+ str(post_id)+'}'
+    build_string = 'GETPOSTID:{"GROUPID":"'+str(group_id)+'","POSTID":"'+ str(post_id)+'"}'
     if(verbose):print("protocol : " + build_string)
     return build_string
 
@@ -256,7 +262,6 @@ def user_interface(server):
 # @param args : string , from user command line input
 def trim_to_arg_array(args):
     args = str(args)
-    print(args)
     args = args.lstrip()
     args = args.rstrip()
     args = args.split()
@@ -271,30 +276,27 @@ def authenticated_action(args,server):
     if(userData == None or len(userData) ==0 ):
         print("User is currently not logged in, please use login [user_id]")
     elif(args[0] == "ag"):
-        print("executing command ag ...")
         #try if valid N argument (N = num to display), else use default value
         try:
             perform_ag_mainloop(server, int(args[1]))
         except:
             perform_ag_mainloop(server,DEFAULT_STEP)
     elif(args[0]=="sg"):
-        print("executing command sg ...")
         #try if valid N argument (N = num to display), else use default value
         try:                            
             perform_sg_mainloop(server, int(args[1]))
         except:
             perform_sg_mainloop(server, DEFAULT_STEP)
     elif(args[0]=="rg"):
-        print("executing command rg ...")
         if(verbose) : print("arguments : " + str(args))
         if(len(args)<2):
             print("Not enough arguments. Command rg has 1 mandatory arg and one optional arg")
         else:
             #try if valid N argument (N = num to display), else use default value
             try:                            
-                perform_rg(server, str(args[1]),int(args[2]))
+                perform_rg_mainloop(server, str(args[1]),int(args[2]))
             except:
-                perform_rg(server, str(args[1]), DEFAULT_STEP)
+                perform_rg_mainloop(server, str(args[1]), DEFAULT_STEP)
     elif(args[0]=="logout"):
         perform_logout(server)
         exit()
@@ -539,12 +541,26 @@ def command_SG_helpmenu():
     print("\n SG Subcommands")
     print("u [m...n] : unsuscribe from group numbers")
     print("n [n] : display next n groups")
-    print("q : quit submenu")
+    print("q : quit submenu\n\n")
 
 
 #**************************#
 #   RG = READ GROUP        #
 #**************************#
+
+def find_read_range(num_str):
+    start_end_arr = []
+    rangeNums = num_str.split("-")
+    if len(rangeNums) == 1:
+        start_end_arr.append(int(rangeNums[0].strip()))
+        start_end_arr.append(int(rangeNums[0].strip()))
+    elif len(rangeNums) == 2:
+        start_end_arr.append(int(rangeNums[0].strip()))
+        start_end_arr.append(int(rangeNums[1].strip()))
+    else:
+        print("Entered an invalid range of numbers")
+    return start_end_arr
+    
 
 # Asks server to display N-number of posts available for a specified group.
 # @param : server , socket of server
@@ -554,7 +570,7 @@ def perform_rg_mainloop(server, groupName, numStep):
     # get posts [n,m] from server for the specified group, where (m - n) = results display number.
     rangeStart = 1
     rangeEnd = rangeStart + numStep - 1
-    server.send(protocol_postarray(groupName,rangeStart,rangeEnd))
+    server.send(protocol_postrange(groupName,rangeStart,rangeEnd))
     server_response = start_polling(server)
     # handle and display the server's response
     if(server_response == None or server_response ==[] or server_response == "" or server_response == {}):
@@ -562,38 +578,39 @@ def perform_rg_mainloop(server, groupName, numStep):
     else:
         # print most recent server response and ask for submenu input
         while True:
-            formatted_RG_response(server_response, rangeStart)
+            formatted_RG_response(server_response, groupName, rangeStart)
             user_input = raw_input("\nRG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
             if len(args) ==0 :
                 print("Error : nothing entered")
-
-
-
-
-                
-            elif args[0] == "u" :
-                unsubscribed_groups = execute_SG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)
-                if(unsubscribed_groups != None and unsubscribed_groups != []):
-                    # remove the recently unsubscribed group from the server response to be redisplayed in the next SG-Format.
-                    server_response = {key: value for key, value in server_response.items() if key not in  unsubscribed_groups}
+            elif args[0] == "r" :
+                read_ranges = find_read_range(args[1])
+                start_range = read_ranges[0]
+                end_range = (read_ranges[1]) + 1
+                for i in range(start_range,end_range, 1):
+                    index = i - rangeStart
+                    post_keystring = list(server_response)[index]
+                    mark_as_read(groupName, post_keystring)
+                # persist the read status change into data file
+                save_file()
             elif args[0] == "n" :
                 print("Displaying next " + str(numStep) + "results")
                 # recalculate range variables and query server for groups within those range
-                subscribed_array = get_subscriptions()
                 rangeStart = rangeStart + numStep
                 rangeEnd = rangeStart + numStep - 1
-                server.send(protocol_group_items(subscribed_array[(rangeStart-1):(rangeEnd)]))
+                server.send(protocol_postrange(groupName,rangeStart,rangeEnd))
                 server_response = start_polling(server)
                 # recontinue submenu control flow evaluation or else exit command.
                 if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
                     print("server did not send any more group information ... ")
                     break
-                
+            elif args[0] == "p" : 
+                print("execute RG_P")                
             elif args[0] == "q" :
-                print("quitting SG Mode")
+                print("quitting RG Mode")
                 break
+            # must be an id request, as user enters a number for the option. 
             else:
                 try:
                     idNum = int(args[0])
@@ -603,47 +620,86 @@ def perform_rg_mainloop(server, groupName, numStep):
                     else:
                         post_id = list(server_response)[relativeNum]
                         # stay at submenu until completed submenu mode.
-                        interface_RG_submenu(groupName,post_id,numStep)
+                        interface_postid_submenu(server, groupName,post_id,numStep)
                         # exited submenu for the post, so continue
-                except:
-                    print("invalid SG subcommand")
-                    command_SG_helpmenu()
-    #completed the ag submenu            
-    if(verbose) : print("Finished executing SG menu.")
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CONTINUE HERE : WORK ON RG [ID] TO RETRIEVE SPECIFIC POST
-
-# Requests user for RG Submenu commands, and tries to execute it.
-# @response : the string parsed to json obj. from server. 
-def interface_RG_submenu(groupName,post_id, numStep):
-    protocol_str = protocol_get_postid(groupName ,post_id)
-    server.send(protocol_str)
+                except Exception as error :
+                    print("invalid RG subcommand " + str(error))
+                    command_RG_helpmenu()
+    #completed the rg submenu            
+    if(verbose) : print("Finished executing RG menu.")
 
 
-def rg_submenu_interface(response,groupName,numStep):
-    displayNum = 1
-    formatted_RG_response(response,groupName, displayNum)
-    while True:
-        print("\n\n***  RG - Submenu : " + str(groupName)+"****")
-        user_input = raw_input("\n>>")
-        args = trim_to_arg_array(user_input)
-        breakStatus = perform_action_rg_submenu(args,displayNum, numStep)
-        if(breakStatus): break
+# submenu interface for examining the contents of a post.
+def interface_postid_submenu(server, groupName, post_id, numStep):
+    start = 1
+    server.send(protocol_get_postid(groupName ,post_id))
+    serv_resp = start_polling(server)
+    if(serv_resp == None or serv_resp == "" or serv_resp =={}):
+        print("server did not send a response for this post id")
+    else:
+        if verbose : print("Received from server " + str(serv_resp))
+        while True:
+            formatted_postid_response(serv_resp[post_id],start, numStep)
+            user_input = raw_input("\n[id] >>")
+            args = trim_to_arg_array(user_input)
+            if(len(args) == 0):
+                print("No command was found, please submit command")
+            elif args[0] == "n" :
+                start = start + numStep
+                lines_in_post_body = serv_resp[post_id]["Body"].split("\n")
+                if(start > len(lines_in_post_body)):
+                    print("The post has no more content to show.\n Exiting post view mode")
+                    break
+            elif args[0] ==  "q" :
+                print("quitting post [id] submenu\n\n")
+                break
+    
 
+# prints the formatted response for a post content
+def formatted_postid_response(response, start_num, num_step):
+    content = response["Body"]
+    content = content.split("\n")
+    end_num = start_num + num_step - 1
+    contStatus = "\t[CONTINUED]..."
+    if(start_num ==1):
+        contStatus = ""
+    
+    print("\n******* Post Content *************")
+    print("Group : " + str(response["Group"]))
+    print("Subject : " + str(response["Subject"]))
+    print("Author : " + str(response["Author"]))
+    print("Date : " + str(response["Date"]))
+    print("Body : " + str(contStatus) + "\n")
+    for i in content[start_num-1:end_num]:
+        print(i)
+        
+        
 
 # Formatted response for an RG request
 # @response : the string parsed to json obj. from server. 
 def formatted_RG_response(response, groupName, start_num):
+    print("\n\n************************************")
+    print("**    READ GROUP: " + str(groupName) + "    ***")
+    print("*****************************************")
     read_posts = get_read_posts(groupName)
     numCount = start_num
-    for i in response:
+    post_list = list(response)
+    for i in post_list:
         newStatus = " "
         if i not in read_posts:
             newStatus = "N"
-        format_line = str(numCount) + ". " +str(newStatus) + " " + str(i)
+        format_line = str(numCount) + ". " +str(newStatus) + " " + str(response[i])  + " " + str(i)
         numCount = numCount + 1
         print(format_line)
         
+# RG help menu
+def command_RG_helpmenu():
+    print("\n RG Subcommands")
+    print("[id] : read post number [id]'s contents")
+    print("r [m] | [m-n] : mark post or posts within range as read")
+    print("n : display next set of posts")
+    print("p : make new post on server")
+    print("q : quit submenu\n\n")
 
 
 #------------------------------#
@@ -657,6 +713,7 @@ def create_tcp_socket(server,port):
 
 # Listening for data from server
 def start_polling(s):
+    if verbose : print("waiting for server response")
     serverResponseString = ""
     while True:
         resp = s.recv(1024)

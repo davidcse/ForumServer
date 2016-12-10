@@ -74,6 +74,87 @@ sampleData1 = {
                         "Subject":"multiprocessors and cores",
                         "Body":"For multiple processors, it is different.\n You have to take into consideration the many cores.\nTake a look at the architecture of the running program.\nThen in code use spinlock.\nThis is the right way to do things.\nThe performance should be better.\nThe end."
                     }
+            },
+        'comp.lang.python':{
+                'python post 1':{
+                        "Group" : "comp.lang.python",
+                        "Author":"Vinny",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn python ",
+                        "Body":"python is the best"
+                    }
+            },
+        'comp.lang.java':{
+                    'java post 1':{
+                        "Group" : "comp.lang.java",
+                        "Author":"Vinny",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn java ",
+                        "Body":"java is the best"
+                    }
+            },
+        'comp.lang.c':{
+                    'c post 1':{
+                        "Group" : "comp.lang.c",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn C ",
+                        "Body":"C is the best"
+                    }
+            },
+        'comp.lang.javascript':{
+                    'javascript post 1':{
+                        "Group" : "comp.lang.javascript",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn Javascript ",
+                        "Body":"Javascript is the best"
+                    }
+            },
+        'comp.lang.prolog':{
+                'prolog post 1':{
+                        "Group" : "comp.lang.prolog",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn Javascript ",
+                        "Body":"Javascript is the best"
+                }
+            },
+        'comp.lang.sml':{
+                'sml post 1':{
+                        "Group" : "comp.lang.sml",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn sml ",
+                        "Body":"sml is the best"
+                }
+            },
+        'comp.lang.ruby':{
+                'ruby post 1':{
+                        "Group" : "comp.lang.ruby",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn ruby ",
+                        "Body":"ruby is the best"
+                }
+            },
+        'comp.framework.angularjs':{
+                'ruby post 1':{
+                        "Group" : "comp.framework.angularjs",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn angularjs ",
+                        "Body":"angularjs is the best"
+                }
+            },
+        'comp.framework.jquery':{
+                'jquery post 1':{
+                        "Group" : "comp.framework.jquery",
+                        "Author":"Robert",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn jquery ",
+                        "Body":"jquery is the best"
+                    }
             }
     }
 

@@ -24,7 +24,12 @@ sampleUserData = {
                         'comp.programming':['programming post 1','programming post 3'],
                         'comp.os.threads':['threads post 2']
                      }
-          }
+          },
+    'Vinny':{
+                'subscribed':['comp.lang.python','comp.lang.java'],
+                'read':{
+                    }
+            }
     }
 
 #-----------------------#

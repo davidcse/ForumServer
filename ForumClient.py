@@ -242,8 +242,10 @@ def print_commandline_interface():
     print("\n\n*****************************")
     print("**\tMAIN MENU\t **")
     print(" 1) login [YOUR ID] " )
-    print(" 2) special instructions" )
-    print(" 3) help " )
+    print(" 2) ag [NUM_GROUPS]" )
+    print(" 3) ug [NUM_GROUPS]" )
+    print(" 4) rg GROUP_NAME [NUM_POSTS]" )
+    print(" 5) help " )
     print("******************************")
 
 

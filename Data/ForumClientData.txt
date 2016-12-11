@@ -1,1 +1,1 @@
-{"Joe": {"read": {"comp.programming": ["programming post 1", "programming post 3"], "comp.os.threads": ["threads post 2", "threads post 1", "threads post 3"]}, "subscribed": ["comp.os.threads", "comp.programming"]}}
+{"Joe": {"read": {"comp.programming": ["programming post 1", "programming post 3", "programming post 2"], "comp.os.threads": ["threads post 2", "threads post 1", "threads post 3"]}, "subscribed": ["comp.os.threads", "comp.programming"]}}

@@ -12,6 +12,10 @@ CLIENT_DATA_ADDR = "./Data/ForumClientData.txt"
 DEFAULT_STEP = 5
 verbose = 0
 
+# DEFINE END PROTOCOL
+global fin
+fin = ""
+
 # dictionary storing user settings for the current client.
 userData ={}
 currentUserId = ""
@@ -718,17 +722,15 @@ def start_polling(s):
     if verbose : print("waiting for server response")
     serverResponseString = ""
     while True:
-        resp = s.recv(1024)
-        if(resp == ""):
-            print("encountered nil, will stop polling")
+        resp = s.recv(1)
+        if(checkFin(resp)):
+	    print("Received FIN, will stop polling")
             break
-        elif(resp == "FIN"):
-            print("Received FIN, will stop polling")
-            break
-        else:
-            print_server_response(resp)
-            serverResponseString = serverResponseString + resp
+	else:
+	    serverResponseString = serverResponseString + resp
     try:
+        # TRIM END PROTOCOL OFF SERVER RESPONSE
+        serverResponseString = serverResponseString[0:-2]
         responseJso = json.loads(serverResponseString)
         if(verbose): print("Assembled server response object")
         if(verbose): print(responseJso)
@@ -736,6 +738,21 @@ def start_polling(s):
     except:
         print("Error Assembling server jso, finished polling")
 
+def checkFin(new):
+    global fin
+    if(fin == "" and new == "\n"):
+        fin = fin + new
+	return False
+    elif fin == "\n" and new == ".":
+	fin = fin + new
+	return False;
+    elif fin == "\n." and new == "\n":
+	fin = ""
+	return True
+    else:
+	fin = ""
+	return False
+		
 #--------------------------#
 #   EXECUTE SCRIPT         #
 #--------------------------#

@@ -86,6 +86,9 @@ verbose = 1
 #   GET / SET DATA(BASE) #
 #------------------------#
 
+def send_end_protocol(client):
+    client.send("\n.\n")
+
 # returns an array of groupnames on this database
 def get_all_groups():
     groupList = []
@@ -151,6 +154,7 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
     json.dump(range_groups,strBuffer)
     if(verbose): print("Preparing to send grouprange response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
+    send_end_protocol(client)
 
 
 # fulfills a request for post id's within a group to the client. 
@@ -168,6 +172,8 @@ def fulfill_postrange_request(client,groupName,start,end):
     json.dump(post_date_dict,strBuffer)
     if(verbose): print("Preparing to send GETPOSTRANGE response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
+    send_end_protocol(client)
+    
 
 
 # fulfills a group items request for the client. 
@@ -178,6 +184,7 @@ def fulfill_group_items_request(client, group_dictionary):
     json.dump(group_dictionary,strBuffer)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
+    send_end_protocol(client)
 
 
 # fulfills a getpost request for the client. 
@@ -193,6 +200,7 @@ def fulfill_post_id_request(client,groupName,postId):
     json.dump(resp,strBuffer)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
+    send_end_protocol(client)
             
 
     
@@ -359,7 +367,8 @@ while True:
             print("client did not send a valid protocol matched to a request")
 
         #send acknowledgement that data transfer is finished. 
-        connect.send("FIN")           
+        #connect.send("FIN")
+        send_end_protocol(client)
         if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
         
     # Issue with connected client socket.

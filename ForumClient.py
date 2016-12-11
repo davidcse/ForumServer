@@ -57,7 +57,7 @@ def load_json_data(filePath):
 def store_json_data(filePath,data):
     #dump data into the buffer
     streamBuffer = StringIO()
-    json.dump(data, streamBuffer)
+    json.dump(data, streamBuffer, indent=4, sort_keys=True)
     # write buffer to file
     saveFile = open(filePath,"w")
     saveFile.write(streamBuffer.getvalue())
@@ -193,7 +193,7 @@ def protocol_setpost_id(group,postArray):
     date = postArray[2]
     auth = currentUserId
     # build the string
-    build_string = 'SETPOSTID:{"GROUP":"'+ str(group) + '","POSTID":"'+ str(postId) + '","SUBJECT":"'+ str(subj) +'","AUTHOR":"'+ str(auth) + '","DATE":"' + str(date) + '","BODY":"'+ str(body)+'"}'
+    build_string = 'SETPOSTID:{"GROUP":"'+ str(group) + '","POSTID":"'+ str(postId) + '","SUBJECT":"'+ str(subj) +'","AUTHOR":"'+ str(auth) + '","DATE":"' + str(date) + '","BODY":"'+ str(body).replace("\n","\\n")+'"}'
     if(verbose):print("protocol : " + build_string)
     return build_string
 
@@ -243,14 +243,14 @@ def perform_action(args,server):
 
 #handles help menu
 def print_help():
-    print("\t-----------------------------------------------")
-    print("\t|                  COMMANDS                   |")
-    print("\t-----------------------------------------------")
-    print("\t| ag [num results to display] : all groups")
-    print("\t| sg [num results to display] : subscribed groups")
-    print("\t| rg [Group Name][num results to display] : read group")
-    print("\t| logout : end sesssion")
-    print("\t| -----------------------------------------------|")
+    print("\t-----------------------------------------------------------")
+    print("\t|                  COMMANDS                                |")
+    print("\t-----------------------------------------------------------")
+    print("\t| ag [num results to display] : all groups                 |")
+    print("\t| sg [num results to display] : subscribed groups          |")
+    print("\t| rg [Group Name][num results to display] : read group     |")
+    print("\t| logout : end sesssion                                    |")
+    print("\t| ---------------------------------------------------------|")
 
 
 #format response string
@@ -389,8 +389,8 @@ def perform_ag_mainloop(server,numStep):
 # print formatted response for an AG request
 def formatted_AG_response(response, start_num):
     print("\n\n**************************")
-    print("**    ALL GROUPS    ***")
-    print("**************************")
+    print("**    ALL GROUPS              ")
+    print("******************************")
     subscribed_groups = get_subscriptions()
     numCount = start_num
     for groupName in response:
@@ -524,8 +524,8 @@ def perform_sg_mainloop(server,numStep):
 # Formatted response for an SG request
 def formatted_SG_response(response, start_num):
     print("\n\n**************************")
-    print("**  SUBSCRIBED GROUPS  ***")
-    print("**************************")
+    print("**  SUBSCRIBED GROUPS     ")
+    print("*****************************")
     # print the subscribed groups formatted way
     numCount = start_num
     for i in response:
@@ -685,6 +685,9 @@ def perform_rg_mainloop(server, groupName, numStep):
                         print("The post id you have entered is larger than the available range")
                     else:
                         post_id = list(server_response)[relativeNum]
+                        # opening post marks it as read
+                        mark_as_read(groupName, post_id)
+                        save_file()
                         # stay at submenu until completed submenu mode.
                         interface_postid_submenu(server, groupName,post_id,numStep)
                         # exited submenu for the post, so continue
@@ -744,9 +747,9 @@ def formatted_postid_response(response, start_num, num_step):
 # Formatted response for an RG request
 # @response : the string parsed to json obj. from server. 
 def formatted_RG_response(response, groupName, start_num):
-    print("\n\n************************************")
-    print("**    READ GROUP: " + str(groupName) + "    ***")
-    print("*****************************************")
+    print("\n\n*******************************************")
+    print("**    READ GROUP: " + str(groupName) + "      ")
+    print("***********************************************")
     read_posts = get_read_posts(groupName)
     numCount = start_num
     post_list = list(response)

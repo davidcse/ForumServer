@@ -1,1 +1,36 @@
-{"Joe": {"read": {"comp.programming": ["programming post 1", "programming post 3"], "comp.os.threads": ["threads post 2"]}, "subscribed": ["comp.programming", "comp.os.threads"]}, "Vinny": {"read": {"comp.programming": ["programming post 1", "programming post 3", "programming post 2", "12/10/16 23:13:48", "12/10/16 23:14:21"], "comp.lang.python": [], "bla": [], "comp.lang.java": []}, "subscribed": ["comp.lang.python", "comp.lang.java"]}}
+{
+    "Joe": {
+        "read": {
+            "comp.os.threads": [
+                "threads post 2"
+            ], 
+            "comp.programming": [
+                "programming post 1", 
+                "programming post 3", 
+                "12/11/16 00:51:40"
+            ]
+        }, 
+        "subscribed": [
+            "comp.programming", 
+            "comp.os.threads"
+        ]
+    }, 
+    "Vinny": {
+        "read": {
+            "comp.framework.jquery": [], 
+            "comp.lang.java": [], 
+            "comp.lang.python": [], 
+            "comp.lang.sml": [], 
+            "comp.os.threads": [
+                "12/10/16 23:49:04", 
+                "threads post 2", 
+                "threads post 5"
+            ], 
+            "comp.programming": []
+        }, 
+        "subscribed": [
+            "comp.framework.jquery", 
+            "comp.lang.sml"
+        ]
+    }
+}

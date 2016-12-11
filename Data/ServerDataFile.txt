@@ -1,1 +1,368 @@
-{"comp.framework.jquery": {"jquery post 1": {"Date": "12/6/2017 3:40P", "Body": "101 101 101 101 Error 200", "Subject": "JQUERY how to query101", "Group": "comp.framework.jquery", "Author": "DaveGotMoney"}, "jquery post 3": {"Date": "12/10/2017 3:00P", "Body": "I guess I shoulda asked Dave? Right ;(", "Subject": "I couldn't learn from Rob!", "Group": "comp.framework.jquery", "Author": "Vincent"}, "jquery post 2": {"Date": "12/6/2017 3:55P", "Body": "I know nothing ask Dave.", "Subject": "learn jquery from a beginner", "Group": "comp.framework.jquery", "Author": "Robert"}}, "comp.os.threads": {"threads post 1": {"Date": "12/6/2017 3:00P", "Body": "use p_threads", "Subject": "multithreading", "Group": "comp.os.threads", "Author": "George"}, "threads post 3": {"Date": "12/6/2017 3:00P", "Body": "mutex lock down", "Subject": "mutex", "Group": "comp.os.threads", "Author": "Robert"}, "threads post 2": {"Date": "12/6/2017 3:00P", "Body": "Has p() and v()", "Subject": "semaphores", "Group": "comp.os.threads", "Author": "Manuel"}, "threads post 5": {"Date": "12/6/2017 3:10P", "Body": "For multiple processors, it is different.\n You have to take into consideration the many cores.\nTake a look at the architecture of the running program.\nThen in code use spinlock.\nThis is the right way to do things.\nThe performance should be better.\nThe end.", "Subject": "multiprocessors and cores", "Group": "comp.os.threads", "Author": "David"}, "threads post 4": {"Date": "12/6/2017 3:00P", "Body": "spin locks", "Subject": "multiprocessors", "Group": "comp.os.threads", "Author": "Wilson"}}, "comp.lang.ruby": {"ruby post 1": {"Date": "12/6/2017 3:00P", "Body": "Rubys are worth more than sapphires", "Subject": "learn Ruby from a veteran!", "Group": "comp.lang.ruby", "Author": "Sam"}, "ruby post 3": {"Date": "12/11/2017 3:00P", "Body": "Dean says Sarah likes him more than Ruby", "Subject": "learn ruby ", "Group": "comp.lang.ruby", "Author": "Marky Mark AKA Dean"}, "ruby post 2": {"Date": "12/6/2017 3:30P", "Body": "ruby is the best", "Subject": "learn ruby ", "Group": "comp.lang.ruby", "Author": "Robby"}}, "comp.lang.javascript": {"javascript post 1": {"Date": "12/6/2017 3:00P", "Body": "Javascript is the best", "Subject": "learn Javascript ", "Group": "comp.lang.javascript", "Author": "Robert"}, "javascript post 2": {"Date": "12/6/2017 3:01P", "Body": "Javascript is the best round 2", "Subject": "learn Javascript lesson 2", "Group": "comp.lang.javascript", "Author": "Jimmy"}, "javascript post 3": {"Date": "12/8/2017 3:02P", "Body": "Javascript is the best round 3", "Subject": "learn Javascript lesson 3", "Group": "comp.lang.javascript", "Author": "Jimmy, but Slim"}}, "comp.lang.python": {"python post 1": {"Date": "12/6/2017 3:00P", "Body": "python is the best", "Subject": "learn python ", "Group": "comp.lang.python", "Author": "Vinny"}, "python post 3": {"Date": "12/6/2017 3:15P", "Body": "I think I broke it guys.I can't find my compiler. Any advice?", "Subject": "I think I just broke my python ", "Group": "comp.lang.python", "Author": "Bradly"}, "python post 2": {"Date": "12/6/2017 3:15P", "Body": "python can be very advanced", "Subject": "learn python advanced ", "Group": "comp.lang.python", "Author": "Paul"}}, "comp.lang.java": {"java post 1": {"Date": "12/6/2017 3:00P", "Body": "java is the best", "Subject": "learn java ", "Group": "comp.lang.java", "Author": "Vinny"}, "java post 3": {"Date": "12/6/2017 3:05P", "Body": "I forgot what I was taught in 219! Can someone explain enums again and what is lmgtfy?", "Subject": "Java enums ", "Group": "comp.lang.java", "Author": "Shaun"}, "java post 2": {"Date": "12/6/2017 3:14P", "Body": "java is the best thats is my entire argument gg", "Subject": "The truth about java and why it is king! ", "Group": "comp.lang.java", "Author": "Shaun"}}, "comp.framework.angularjs": {"ruby post 1": {"Date": "12/6/2017 3:00P", "Body": "angularjs is the best", "Subject": "learn angularjs ", "Group": "comp.framework.angularjs", "Author": "Andrew Denn"}, "ruby post 3": {"Date": "12/6/2017 3:00P", "Body": "i'm tired of angles.", "Subject": "learn angularjs 3", "Group": "comp.framework.angularjs", "Author": "R.O.B."}, "ruby post 2": {"Date": "12/6/2017 3:00P", "Body": "I have 6 faces. People say I'm bipolar.", "Subject": "learn angular from a cube himself", "Group": "comp.framework.angularjs", "Author": "TennisBoi69"}}, "comp.General": {"General post 1": {"Date": "12/6/2017 3:44P", "Body": "Generally speaking, why do computer use bits?", "Subject": "General question", "Group": "comp.General", "Author": "Charlie"}, "General post 2": {"Date": "12/1/2017 3:55P", "Body": "I have steadily lost control of my life. This is a memory.", "Subject": "What does a computer cost? Am I using a computer right now?", "Group": "comp.General", "Author": "Dennis"}, "General post 3": {"Date": "12/10/2017 3:24P", "Body": "I just have the version that JWONG told me to install. Any preferences?", "Subject": "What is a power supply?", "Group": "comp.General", "Author": "SunGod"}}, "comp.programming": {"programming post 1": {"Date": "12/6/2017 3:00P", "Body": "The very first sentence", "Subject": "Sort a Python dictionary by value", "Group": "comp.programming", "Author": "paul"}, "programming post 3": {"Date": "12/6/2017 3:00P", "Body": "The very second sentence", "Subject": "How to print to stderr in Python 3.4?", "Group": "comp.programming", "Author": "Bob"}, "programming post 2": {"Date": "12/6/2017 3:00P", "Body": "The very second sentence", "Subject": "How to print to stderr in Python 2.7?", "Group": "comp.programming", "Author": "Seth"}}, "comp.lang.c": {"c post 3": {"Date": "12/6/2017 3:04P", "Body": "I am not a patsy like that! I git pushed! I swear!", "Subject": "My company says I'm to blame!", "Group": "comp.lang.c", "Author": "Patsy"}, "c post 2": {"Date": "12/6/2017 3:01P", "Body": "1 2 3 4 5 ", "Subject": "Learn how to sort in c", "Group": "comp.lang.c", "Author": "King"}, "c post 1": {"Date": "12/6/2017 3:00P", "Body": "C is the best", "Subject": "learn C ", "Group": "comp.lang.c", "Author": "Robert"}}, "comp.lang.sml": {"sml post 1": {"Date": "12/6/2017 3:00P", "Body": "sml is the best", "Subject": "learn sml ", "Group": "comp.lang.sml", "Author": "Robert"}, "sml post 2": {"Date": "12/6/2017 3:30P", "Body": "sml is the best and I have 2 feet", "Subject": "learn sml 2", "Group": "comp.lang.sml", "Author": "Timmy"}, "sml post 3": {"Date": "12/6/2017 3:50P", "Body": "sml is the best. Thank you for attending lesson 3", "Subject": "learn sml 3", "Group": "comp.lang.sml", "Author": "Dale Dimmadome"}}, "comp.Ubuntu": {"Ubuntu post 1": {"Date": "12/6/2017 3:44P", "Body": "First download your ubuntu please. Hands up.", "Subject": "INTRO TO UBUNTU", "Group": "comp.Ubuntu", "Author": "Ubuntu god"}, "Ubuntu post 2": {"Date": "12/1/2017 3:55P", "Body": "ubuntu is the best hands down. I have no arms", "Subject": "Ubuntu", "Group": "comp.Ubuntu", "Author": "BobbyD"}, "Ubuntu post 3": {"Date": "12/10/2017 3:24P", "Body": "I just have the version that JWONG told me to install. Any preferences?", "Subject": "What is the best version?", "Group": "comp.Ubuntu", "Author": "SilverSurfer"}}, "comp.Parrot": {"Parrot post 3": {"Date": "12/3/2017 3:46P", "Body": "This has been lesson 3. Thank you. Goodnight my fans!", "Subject": "learn parrot3", "Group": "comp.Parrot", "Author": "Bird lover"}, "Parrot post 2": {"Date": "12/2/2017 3:01P", "Body": "Just a brief lesson 2 on parrot. This is a language lol.", "Subject": "learn parrot2", "Group": "comp.Parrot", "Author": "A red bird"}, "Parrot post 1": {"Date": "12/1/2017 3:00P", "Body": "parrot is the best", "Subject": "learn parrot", "Group": "comp.Parrot", "Author": "A bird"}}, "comp.framework.REXX": {"REXX post 1": {"Date": "12/6/2017 3:40P", "Body": "A T-Rex has small hands", "Subject": "who IS Rex?", "Group": "comp.framework.REXX", "Author": "MoneyMitch"}, "REXX post 2": {"Date": "12/15/2017 3:55P", "Body": "My friend's dad codes in REXX. I know a guy you could say.", "Subject": "REXX", "Group": "comp.framework.REXX", "Author": "BobDaniels"}, "REXX post 3": {"Date": "12/10/2017 3:24P", "Body": "Where are the MANPAGES? Where is my family? Why has everyone abandonded me?", "Subject": "Problems with grammar", "Group": "comp.framework.REXX", "Author": "Rad Raphael55"}}, "comp.lang.prolog": {"prolog post 1": {"Date": "12/6/2017 3:00P", "Body": "Javascript is the best", "Subject": "learn Javascript ", "Group": "comp.lang.prolog", "Author": "Robert"}, "prolog post 2": {"Date": "12/7/2017 3:00P", "Body": "Javascript is pretty good", "Subject": "learn Javascript 2", "Group": "comp.lang.prolog", "Author": "Rob, but Angry"}, "prolog post 3": {"Date": "12/11/2017 3:00P", "Body": "Javascript is the ultimate language", "Subject": "learn Javascript 3", "Group": "comp.lang.prolog", "Author": "Fred"}}}
+{
+    "comp.General": {
+        "General post 1": {
+            "Author": "Charlie", 
+            "Body": "Generally speaking, why do computer use bits?", 
+            "Date": "12/6/2017 3:44P", 
+            "Group": "comp.General", 
+            "Subject": "General question"
+        }, 
+        "General post 2": {
+            "Author": "Dennis", 
+            "Body": "I have steadily lost control of my life. This is a memory.", 
+            "Date": "12/1/2017 3:55P", 
+            "Group": "comp.General", 
+            "Subject": "What does a computer cost? Am I using a computer right now?"
+        }, 
+        "General post 3": {
+            "Author": "SunGod", 
+            "Body": "I just have the version that JWONG told me to install. Any preferences?", 
+            "Date": "12/10/2017 3:24P", 
+            "Group": "comp.General", 
+            "Subject": "What is a power supply?"
+        }
+    }, 
+    "comp.Parrot": {
+        "Parrot post 1": {
+            "Author": "A bird", 
+            "Body": "parrot is the best", 
+            "Date": "12/1/2017 3:00P", 
+            "Group": "comp.Parrot", 
+            "Subject": "learn parrot"
+        }, 
+        "Parrot post 2": {
+            "Author": "A red bird", 
+            "Body": "Just a brief lesson 2 on parrot. This is a language lol.", 
+            "Date": "12/2/2017 3:01P", 
+            "Group": "comp.Parrot", 
+            "Subject": "learn parrot2"
+        }, 
+        "Parrot post 3": {
+            "Author": "Bird lover", 
+            "Body": "This has been lesson 3. Thank you. Goodnight my fans!", 
+            "Date": "12/3/2017 3:46P", 
+            "Group": "comp.Parrot", 
+            "Subject": "learn parrot3"
+        }
+    }, 
+    "comp.Ubuntu": {
+        "Ubuntu post 1": {
+            "Author": "Ubuntu god", 
+            "Body": "First download your ubuntu please. Hands up.", 
+            "Date": "12/6/2017 3:44P", 
+            "Group": "comp.Ubuntu", 
+            "Subject": "INTRO TO UBUNTU"
+        }, 
+        "Ubuntu post 2": {
+            "Author": "BobbyD", 
+            "Body": "ubuntu is the best hands down. I have no arms", 
+            "Date": "12/1/2017 3:55P", 
+            "Group": "comp.Ubuntu", 
+            "Subject": "Ubuntu"
+        }, 
+        "Ubuntu post 3": {
+            "Author": "SilverSurfer", 
+            "Body": "I just have the version that JWONG told me to install. Any preferences?", 
+            "Date": "12/10/2017 3:24P", 
+            "Group": "comp.Ubuntu", 
+            "Subject": "What is the best version?"
+        }
+    }, 
+    "comp.framework.REXX": {
+        "REXX post 1": {
+            "Author": "MoneyMitch", 
+            "Body": "A T-Rex has small hands", 
+            "Date": "12/6/2017 3:40P", 
+            "Group": "comp.framework.REXX", 
+            "Subject": "who IS Rex?"
+        }, 
+        "REXX post 2": {
+            "Author": "BobDaniels", 
+            "Body": "My friend's dad codes in REXX. I know a guy you could say.", 
+            "Date": "12/15/2017 3:55P", 
+            "Group": "comp.framework.REXX", 
+            "Subject": "REXX"
+        }, 
+        "REXX post 3": {
+            "Author": "Rad Raphael55", 
+            "Body": "Where are the MANPAGES? Where is my family? Why has everyone abandonded me?", 
+            "Date": "12/10/2017 3:24P", 
+            "Group": "comp.framework.REXX", 
+            "Subject": "Problems with grammar"
+        }
+    }, 
+    "comp.framework.angularjs": {
+        "ruby post 1": {
+            "Author": "Andrew Denn", 
+            "Body": "angularjs is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.framework.angularjs", 
+            "Subject": "learn angularjs "
+        }, 
+        "ruby post 2": {
+            "Author": "TennisBoi69", 
+            "Body": "I have 6 faces. People say I'm bipolar.", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.framework.angularjs", 
+            "Subject": "learn angular from a cube himself"
+        }, 
+        "ruby post 3": {
+            "Author": "R.O.B.", 
+            "Body": "i'm tired of angles.", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.framework.angularjs", 
+            "Subject": "learn angularjs 3"
+        }
+    }, 
+    "comp.framework.jquery": {
+        "jquery post 1": {
+            "Author": "DaveGotMoney", 
+            "Body": "101 101 101 101 Error 200", 
+            "Date": "12/6/2017 3:40P", 
+            "Group": "comp.framework.jquery", 
+            "Subject": "JQUERY how to query101"
+        }, 
+        "jquery post 2": {
+            "Author": "Robert", 
+            "Body": "I know nothing ask Dave.", 
+            "Date": "12/6/2017 3:55P", 
+            "Group": "comp.framework.jquery", 
+            "Subject": "learn jquery from a beginner"
+        }, 
+        "jquery post 3": {
+            "Author": "Vincent", 
+            "Body": "I guess I shoulda asked Dave? Right ;(", 
+            "Date": "12/10/2017 3:00P", 
+            "Group": "comp.framework.jquery", 
+            "Subject": "I couldn't learn from Rob!"
+        }
+    }, 
+    "comp.lang.c": {
+        "c post 1": {
+            "Author": "Robert", 
+            "Body": "C is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.c", 
+            "Subject": "learn C "
+        }, 
+        "c post 2": {
+            "Author": "King", 
+            "Body": "1 2 3 4 5 ", 
+            "Date": "12/6/2017 3:01P", 
+            "Group": "comp.lang.c", 
+            "Subject": "Learn how to sort in c"
+        }, 
+        "c post 3": {
+            "Author": "Patsy", 
+            "Body": "I am not a patsy like that! I git pushed! I swear!", 
+            "Date": "12/6/2017 3:04P", 
+            "Group": "comp.lang.c", 
+            "Subject": "My company says I'm to blame!"
+        }
+    }, 
+    "comp.lang.java": {
+        "java post 1": {
+            "Author": "Vinny", 
+            "Body": "java is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.java", 
+            "Subject": "learn java "
+        }, 
+        "java post 2": {
+            "Author": "Shaun", 
+            "Body": "java is the best thats is my entire argument gg", 
+            "Date": "12/6/2017 3:14P", 
+            "Group": "comp.lang.java", 
+            "Subject": "The truth about java and why it is king! "
+        }, 
+        "java post 3": {
+            "Author": "Shaun", 
+            "Body": "I forgot what I was taught in 219! Can someone explain enums again and what is lmgtfy?", 
+            "Date": "12/6/2017 3:05P", 
+            "Group": "comp.lang.java", 
+            "Subject": "Java enums "
+        }
+    }, 
+    "comp.lang.javascript": {
+        "javascript post 1": {
+            "Author": "Robert", 
+            "Body": "Javascript is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.javascript", 
+            "Subject": "learn Javascript "
+        }, 
+        "javascript post 2": {
+            "Author": "Jimmy", 
+            "Body": "Javascript is the best round 2", 
+            "Date": "12/6/2017 3:01P", 
+            "Group": "comp.lang.javascript", 
+            "Subject": "learn Javascript lesson 2"
+        }, 
+        "javascript post 3": {
+            "Author": "Jimmy, but Slim", 
+            "Body": "Javascript is the best round 3", 
+            "Date": "12/8/2017 3:02P", 
+            "Group": "comp.lang.javascript", 
+            "Subject": "learn Javascript lesson 3"
+        }
+    }, 
+    "comp.lang.prolog": {
+        "prolog post 1": {
+            "Author": "Robert", 
+            "Body": "Javascript is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.prolog", 
+            "Subject": "learn Javascript "
+        }, 
+        "prolog post 2": {
+            "Author": "Rob, but Angry", 
+            "Body": "Javascript is pretty good", 
+            "Date": "12/7/2017 3:00P", 
+            "Group": "comp.lang.prolog", 
+            "Subject": "learn Javascript 2"
+        }, 
+        "prolog post 3": {
+            "Author": "Fred", 
+            "Body": "Javascript is the ultimate language", 
+            "Date": "12/11/2017 3:00P", 
+            "Group": "comp.lang.prolog", 
+            "Subject": "learn Javascript 3"
+        }
+    }, 
+    "comp.lang.python": {
+        "python post 1": {
+            "Author": "Vinny", 
+            "Body": "python is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.python", 
+            "Subject": "learn python "
+        }, 
+        "python post 2": {
+            "Author": "Paul", 
+            "Body": "python can be very advanced", 
+            "Date": "12/6/2017 3:15P", 
+            "Group": "comp.lang.python", 
+            "Subject": "learn python advanced "
+        }, 
+        "python post 3": {
+            "Author": "Bradly", 
+            "Body": "I think I broke it guys.I can't find my compiler. Any advice?", 
+            "Date": "12/6/2017 3:15P", 
+            "Group": "comp.lang.python", 
+            "Subject": "I think I just broke my python "
+        }
+    }, 
+    "comp.lang.ruby": {
+        "ruby post 1": {
+            "Author": "Sam", 
+            "Body": "Rubys are worth more than sapphires", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.ruby", 
+            "Subject": "learn Ruby from a veteran!"
+        }, 
+        "ruby post 2": {
+            "Author": "Robby", 
+            "Body": "ruby is the best", 
+            "Date": "12/6/2017 3:30P", 
+            "Group": "comp.lang.ruby", 
+            "Subject": "learn ruby "
+        }, 
+        "ruby post 3": {
+            "Author": "Marky Mark AKA Dean", 
+            "Body": "Dean says Sarah likes him more than Ruby", 
+            "Date": "12/11/2017 3:00P", 
+            "Group": "comp.lang.ruby", 
+            "Subject": "learn ruby "
+        }
+    }, 
+    "comp.lang.sml": {
+        "sml post 1": {
+            "Author": "Robert", 
+            "Body": "sml is the best", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.lang.sml", 
+            "Subject": "learn sml "
+        }, 
+        "sml post 2": {
+            "Author": "Timmy", 
+            "Body": "sml is the best and I have 2 feet", 
+            "Date": "12/6/2017 3:30P", 
+            "Group": "comp.lang.sml", 
+            "Subject": "learn sml 2"
+        }, 
+        "sml post 3": {
+            "Author": "Dale Dimmadome", 
+            "Body": "sml is the best. Thank you for attending lesson 3", 
+            "Date": "12/6/2017 3:50P", 
+            "Group": "comp.lang.sml", 
+            "Subject": "learn sml 3"
+        }
+    }, 
+    "comp.os.threads": {
+        "threads post 1": {
+            "Author": "George", 
+            "Body": "use p_threads", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.os.threads", 
+            "Subject": "multithreading"
+        }, 
+        "threads post 2": {
+            "Author": "Manuel", 
+            "Body": "Has p() and v()", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.os.threads", 
+            "Subject": "semaphores"
+        }, 
+        "threads post 3": {
+            "Author": "Robert", 
+            "Body": "mutex lock down", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.os.threads", 
+            "Subject": "mutex"
+        }, 
+        "threads post 4": {
+            "Author": "Wilson", 
+            "Body": "spin locks", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.os.threads", 
+            "Subject": "multiprocessors"
+        }, 
+        "threads post 5": {
+            "Author": "David", 
+            "Body": "For multiple processors, it is different.\n You have to take into consideration the many cores.\nTake a look at the architecture of the running program.\nThen in code use spinlock.\nThis is the right way to do things.\nThe performance should be better.\nThe end.", 
+            "Date": "12/6/2017 3:10P", 
+            "Group": "comp.os.threads", 
+            "Subject": "multiprocessors and cores"
+        }
+    }, 
+    "comp.programming": {
+        "12/11/16 01:30:14": {
+            "Author": "Joe", 
+            "Body": "save this post!\n", 
+            "Date": "12/11/16 01:30:14", 
+            "Group": "comp.programming", 
+            "Subject": "pls save me bby"
+        }, 
+        "programming post 1": {
+            "Author": "paul", 
+            "Body": "The very first sentence", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.programming", 
+            "Subject": "Sort a Python dictionary by value"
+        }, 
+        "programming post 2": {
+            "Author": "Seth", 
+            "Body": "The very second sentence", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.programming", 
+            "Subject": "How to print to stderr in Python 2.7?"
+        }, 
+        "programming post 3": {
+            "Author": "Bob", 
+            "Body": "The very second sentence", 
+            "Date": "12/6/2017 3:00P", 
+            "Group": "comp.programming", 
+            "Subject": "How to print to stderr in Python 3.4?"
+        }
+    }
+}

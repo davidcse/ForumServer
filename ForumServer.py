@@ -2,6 +2,8 @@ import socket
 import json
 from StringIO import StringIO 
 import traceback
+import threading
+import logging
 
 #----------------------#
 #   GLOBAL DATA        #
@@ -11,6 +13,12 @@ port = 1200
 
 # Filepath to the json-formatted text file
 DATABASE_FILE_ADDR = "./Data/ServerDataFile.txt"
+
+# LOCKS
+global dbLock
+global fileLock
+dbLock = threading.RLock()
+fileLock = threading.RLock()
 
 #sample Data
 sampleData1 = {
@@ -392,23 +400,31 @@ def send_end_protocol(client):
 # returns an array of groupnames on this database
 def get_all_groups():
     groupList = []
+    dbLock.acquire()
     for key,value in database.items():
         groupList.append(key)
+    dbLock.release()
     return groupList
 
 # returns the entire dictionary of post contents for the group on this database
 def get_posts(groupName):
     try:
+        targerGroup = None
+        dbLock.acquire()
         targetGroup = database[groupName]
-        return targetGroup
     except:
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
-        return None
+    finally:
+        dbLock.release()
+        return targetGroup
 
 # returns the names of the posts only, from this parent group. 
 def get_posts_name_date(groupName):
     try:
+        targerGroup = None
+        dbLock.acquire()
         targetGroup = database[groupName]
+        dbLock.release()
         post_keys = list(targetGroup)
         post_name_date = {}
         for i in post_keys:
@@ -416,19 +432,25 @@ def get_posts_name_date(groupName):
         return post_name_date
     except:
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
+        dbLock.release()
         return None
 
 # returns the contents of the specific post under the given group. 
 def get_post_id_content(groupName,post_id):
     try:
+        dbLock.acquire()
         postContent = database[groupName][post_id]
+        dbLock.release()
         return postContent
     except:
         print("Error getting specific post content from " + str(post_id) + " in group " + str(groupName))
+        dbLock.release()
 
 # modifies the contents of the post on the server
 def set_post(groupName,post_id,post):
+    dbLock.acquire()
     database[groupName][post_id]= post
+    dbLock.release()
     
 
 #------------------------#
@@ -451,7 +473,7 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
         except:
             break
     strBuffer = StringIO()
-    json.dump(range_groups,strBuffer)
+    json.dump(range_groups,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send grouprange response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
@@ -466,7 +488,7 @@ def fulfill_postrange_request(client,groupName,start,end):
     if posts == None:
         strBuff = StringIO()
         resp = ["NOGRP"]
-        json.dump(resp,strBuff)
+        json.dump(resp,strBuff, indent=4, sort_keys=True)
         client.send(strBuff.getvalue())
         return
     print(posts)
@@ -475,7 +497,7 @@ def fulfill_postrange_request(client,groupName,start,end):
     for i in post_list:
         post_date_dict[i] = posts[i]
     strBuffer = StringIO()
-    json.dump(post_date_dict,strBuffer)
+    json.dump(post_date_dict,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send GETPOSTRANGE response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
     
@@ -486,7 +508,7 @@ def fulfill_postrange_request(client,groupName,start,end):
 # @group_dictionary: dictionary, where key is groupname and value is all the posts in the group, including post content. 
 def fulfill_group_items_request(client, group_dictionary):
     strBuffer = StringIO()
-    json.dump(group_dictionary,strBuffer)
+    json.dump(group_dictionary,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
@@ -501,7 +523,7 @@ def fulfill_post_id_request(client,groupName,postId):
     if(content == None):
         return
     resp = {postId : content}
-    json.dump(resp,strBuffer)
+    json.dump(resp,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
             
@@ -520,7 +542,7 @@ def fulfill_setpost_id_request(client,postData):
     # tell the client confirmation 
     strBuffer = StringIO()
     resp = ["CREATE_POST_SUCCESSFUL"]
-    json.dump(resp,strBuffer)
+    json.dump(resp,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
 
@@ -542,18 +564,24 @@ def load_json_data(filePath):
 def store_json_data(filePath,data):
     #dump data into the buffer
     streamBuffer = StringIO()
-    json.dump(data, streamBuffer)
+    json.dump(data, streamBuffer, indent=4, sort_keys=True)
     # write buffer to file
     saveFile = open(filePath,"w")
     saveFile.write(streamBuffer.getvalue())
     saveFile.close()
 
-
+    
+def save_file():
+    dbLock.acquire()
+    store_json_data(DATABASE_FILE_ADDR,database)
+    dbLock.release()
+    
 def init_database_object():
     global database
     global sampleData1
     #Try loading data file, else create one with sample data and load it.
     try:
+        dbLock.acquire()
         database = load_json_data(DATABASE_FILE_ADDR)
     except:
         store_json_data(DATABASE_FILE_ADDR,sampleData1)
@@ -563,6 +591,8 @@ def init_database_object():
             print(sampleData1)
             print("Database:")
             print(database)
+    finally:
+        dbLock.release()
 
 #-------------------#
 #   PROTOCOLS       #
@@ -607,11 +637,14 @@ def perform_protocol_group_items(contentHeaders):
     # create mapping of the group and the items it contains
     responseDict = {}
     try:
+        dbLock.acquire()
         for g in requested_groups_array:
             responseDict[g] = database[g]
         return responseDict
     except Exception as error:
         print("Client requested a set of group that does not exist on server")
+    finally:
+        dbLock.release()
     return
 
 
@@ -641,7 +674,59 @@ def perform_protocol_setpost_id(contentHeaders):
         print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
         print("Error is : " + str(err))
     return 
-    
+ 
+# MAIN FUNCTION FOR THREADS
+def handleClient(client, addr):
+    while True:
+        try:
+            # Typically fork at this point
+
+            # Receive up to 1024 bytes 
+            resp = (client.recv(1024)).strip()
+            if(verbose): print("received message : " + str(resp) + " from : " + str(addr))
+        
+            # separate the type of protocol from the contentHeaders
+            clientRequest = resp.split(":",1)
+        
+            # Check against list of known protocols, to fulfill the request.
+            if(clientRequest[0]=="GETGROUPRANGE"):
+                group_ranges = perform_protocol_grouprange(clientRequest[1])
+                if(group_ranges != None):
+                    fulfill_grouprange_request(client, group_ranges[0],group_ranges[1])
+            elif(clientRequest[0]=="GETPOSTRANGE"):
+                post_id_params = perform_protocol_postrange(clientRequest[1])
+                if(post_id_params != None):
+                    fulfill_postrange_request(client,post_id_params[0],post_id_params[1],post_id_params[2])
+            elif(clientRequest[0]=="GETGROUPITEMS"):
+                group_dictionary = perform_protocol_group_items(clientRequest[1])
+                if(group_dictionary != None):
+                    fulfill_group_items_request(client,group_dictionary)
+            elif(clientRequest[0] =="GETPOSTID"):
+                post_id_params = perform_protocol_postid(clientRequest[1])
+                if(post_id_params  != None):
+                    fulfill_post_id_request(client,post_id_params[0],post_id_params[1])
+            elif(clientRequest[0]=="SETPOSTID"):
+                post_data = perform_protocol_setpost_id(clientRequest[1])
+                if(post_data  != None):
+                    fulfill_setpost_id_request(client,post_data)
+                    save_file()
+            else:
+                # client violated protocol in some way.                        
+                print("client did not send a valid protocol matched to a request")
+
+            #send acknowledgement that data transfer is finished. 
+            #client.send("FIN")
+            send_end_protocol(client)
+            if(verbose): print("\n Finished request: " + str(resp) +" from " + str(addr))
+        
+        # Issue with connected client socket.
+        except Exception as error :
+            print("Server encountered error, or maybe client not available, closing connection... \n" + str(error))
+            client.close()
+            return
+            
+
+
     
 #--------------------#
 #   SCRIPT           #
@@ -665,53 +750,13 @@ if(verbose): print('server is listening')
 
 
 # Wait for a connection
-connect, address = s.accept()
 while True:
-    try:
-        # Typically fork at this point
-
-        # Receive up to 1024 bytes 
-        resp = (connect.recv(1024)).strip()
-        if(verbose): print("received message : " + str(resp) + " from : " + str(address))
-        
-        # separate the type of protocol from the contentHeaders
-        clientRequest = resp.split(":",1)
-        
-        # Check against list of known protocols, to fulfill the request.
-        if(clientRequest[0]=="GETGROUPRANGE"):
-            group_ranges = perform_protocol_grouprange(clientRequest[1])
-            if(group_ranges != None):
-                fulfill_grouprange_request(connect, group_ranges[0],group_ranges[1])
-        elif(clientRequest[0]=="GETPOSTRANGE"):
-            post_id_params = perform_protocol_postrange(clientRequest[1])
-            if(post_id_params != None):
-                fulfill_postrange_request(connect,post_id_params[0],post_id_params[1],post_id_params[2])
-        elif(clientRequest[0]=="GETGROUPITEMS"):
-            group_dictionary = perform_protocol_group_items(clientRequest[1])
-            if(group_dictionary != None):
-                fulfill_group_items_request(connect,group_dictionary)
-        elif(clientRequest[0] =="GETPOSTID"):
-            post_id_params = perform_protocol_postid(clientRequest[1])
-            if(post_id_params  != None):
-                fulfill_post_id_request(connect,post_id_params[0],post_id_params[1])
-        elif(clientRequest[0]=="SETPOSTID"):
-            post_data = perform_protocol_setpost_id(clientRequest[1])
-            if(post_data  != None):
-                fulfill_setpost_id_request(connect,post_data)
-        else:
-            # client violated protocol in some way.                        
-            print("client did not send a valid protocol matched to a request")
-
-        #send acknowledgement that data transfer is finished. 
-        #connect.send("FIN")
-        send_end_protocol(connect)
-        if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
-        
-    # Issue with connected client socket.
-    except Exception as error :
-        print("Server encountered error, or maybe client not available, closing connection... \n" + str(error))
-        connect.close()
-        break
+    connect, address = s.accept()
+    # SPAWN NEW THREAD
+    print("New Connection Found")
+    t = threading.Thread(target=handleClient, args=(connect,address))
+    t.start()
+    
 
 #close the server
 s.close()

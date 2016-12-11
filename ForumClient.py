@@ -108,7 +108,12 @@ def get_subscriptions():
     return userData["subscribed"]
 
 def get_read_posts(groupName):
-    return userData["read"][groupName]
+    try:
+        return userData["read"][groupName]
+    except KeyError:
+        userData["read"][groupName]=[]
+        save_file()
+        return userData["read"][groupName]
 
 def mark_as_read(groupName,post):
     try:
@@ -707,7 +712,7 @@ def formatted_RG_response(response, groupName, start_num):
         newStatus = " "
         if i not in read_posts:
             newStatus = "N"
-        format_line = str(numCount) + ". " +str(newStatus) + " " + str(response[i])  + " " + str(i)
+        format_line = str(numCount) + ". " +str(newStatus) + " " + str(response[i]["Date"])  + " " + str(response[i]["Subject"])
         numCount = numCount + 1
         print(format_line)
         

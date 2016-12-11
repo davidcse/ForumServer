@@ -193,7 +193,7 @@ def get_posts_name_date(groupName):
         post_keys = list(targetGroup)
         post_name_date = {}
         for i in post_keys:
-            post_name_date[i] = targetGroup[i]["Date"]
+            post_name_date[i] = {"Date":targetGroup[i]["Date"], "Subject":targetGroup[i]["Subject"]}
         return post_name_date
     except:
         print("Error getting posts for group : " + str(groupName) + ", could not find in database")
@@ -244,6 +244,7 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
 # @end : int , end of the post range 
 def fulfill_postrange_request(client,groupName,start,end):
     posts = get_posts_name_date(groupName)
+    print(posts)
     post_list = list(posts)[start-1:end]
     post_date_dict = {}
     for i in post_list:

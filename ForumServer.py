@@ -4,6 +4,7 @@ from StringIO import StringIO
 import traceback
 import threading
 import logging
+import time
 
 #----------------------#
 #   GLOBAL DATA        #
@@ -528,16 +529,19 @@ def fulfill_post_id_request(client,groupName,postId):
     client.send(strBuffer.getvalue())
             
 def fulfill_setpost_id_request(client,postData):
+    uniqueTime = time.strftime("%c")
     group = postData["GROUP"]
-    postId = postData["POSTID"]
+    postId = uniqueTime+"_"+str(len(list(database[group])))
     # build content
+    dbLock.acquire()
     content = {
         "Group" : group,
         "Author": postData["AUTHOR"],
-        "Date": postData["DATE"],
+        "Date": uniqueTime,
         "Subject": postData["SUBJECT"],
         "Body":postData["BODY"]
     }
+    dbLock.release()
     set_post(group,postId,content)
     # tell the client confirmation 
     strBuffer = StringIO()

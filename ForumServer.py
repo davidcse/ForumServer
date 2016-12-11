@@ -11,7 +11,7 @@ import collections
 #   GLOBAL DATA        #
 #----------------------#
 server = ""
-port = 1200
+port = 60000
 
 # Filepath to the json-formatted text file
 DATABASE_FILE_ADDR = "./Data/ServerDataFile.txt"

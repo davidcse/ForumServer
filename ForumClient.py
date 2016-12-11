@@ -2,13 +2,14 @@ import socket
 import json
 from StringIO import StringIO
 from os import path 
+from sys import argv
 import traceback
 import time
 #--------------------#
 #   GLOBAL DATA      #
 #--------------------#
 SERVER = "127.0.0.1"
-PORT = 1200
+PORT = 60000
 CLIENT_DATA_ADDR = "./Data/ForumClientData.txt"
 DEFAULT_STEP = 5
 verbose = 0
@@ -83,8 +84,8 @@ def load_file(filePath):
         print("Loaded user data at filepath : " + str(filePath))
     else:
         store_json_data(filePath,sampleUserData)
-        print("Previous file does not exist at path : " + str(filePath))
-        print("Sample user data written to path")
+        if verbose: print("Previous file does not exist at path : " + str(filePath))
+        if verbose: print("Sample user data written to path")
 
 
 #tries to load client data on local machine, using the loaded data file.
@@ -245,9 +246,28 @@ def print_help():
     print("\t|                  COMMANDS                                |")
     print("\t-----------------------------------------------------------")
     print("\t| ag [num results to display] : all groups                 |")
+    print("\t|__________________________________________________________|")
+
+    print("\t\t s [m...n] : subscribe to group numbers")
+    print("\t\t u [m...n] : unsuscribe from group numbers")
+    print("\t\t n [n] : display next n groups")
+    print("\t\t q : quit submenu\n\n")
+    print("\t-----------------------------------------------------------")
     print("\t| sg [num results to display] : subscribed groups          |")
+    print("\t|__________________________________________________________|")
+    print("\t\t u [m...n] : unsuscribe from group numbers")
+    print("\t\t n [n] : display next n groups")
+    print("\t\t q : quit submenu\n\n")
+    print("\t-----------------------------------------------------------")
     print("\t| rg [Group Name][num results to display] : read group     |")
-    print("\t| logout : end sesssion                                    |")
+    print("\t|__________________________________________________________|")
+    print("\t\t [id] : read post number [id]'s contents")
+    print("\t\t r [m] | [m-n] : mark post or posts within range as read")
+    print("\t\t n : display next set of posts")
+    print("\t\t p : make new post on server")
+    print("\t\t q : quit submenu\n\n")
+    print("\t-----------------------------------------------------------")
+    print("\t| logout : end session                                    |")
     print("\t| ---------------------------------------------------------|")
 
 
@@ -258,18 +278,17 @@ def print_server_response(serverResp):
     print("-------------------")
 
 def print_commandline_interface():
-    print("\n\n*****************************")
-    print("**\tMAIN MENU\t **")
-    print("login [YOUR ID] " )
+    print("\n\n")
+    print("******************************")
+    print("\tMAIN MENU\t")
+    print("login [ID] or type \"help\" ")
     print("******************************")
 
 def print_commandline_interface2():
-    print("\n\n*****************************")
-    print("**\tMAIN MENU\t **")
-    print("ag [num results to display] : all groups")
-    print("sg [num results to display] : subscribed groups")
-    print("rg [Group Name][num results to display] : read group")
-    print("logout : end sesssion")
+    print("\n\n")
+    print("******************************")
+    print("\tMAIN MENU\t")
+    print("logout or help")
     print("******************************")
 
 
@@ -352,7 +371,6 @@ def perform_ag_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_AG_response(server_response, rangeStart)
-            command_AG_helpmenu()
             user_input = raw_input("\nAG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
@@ -378,7 +396,6 @@ def perform_ag_mainloop(server,numStep):
                 break
             else:
                 print("invalid AG subcommand\n")
-                command_AG_helpmenu()
     #completed the ag submenu            
     if(verbose) : print("Finished executing AG menu.\n")
 
@@ -451,13 +468,7 @@ def execute_AG_unsubscribe(arglist, start, end, response):
 
     
 
-# Prints the usage statement in the AG submenu
-def command_AG_helpmenu():
-    print("\n AG Subcommands")
-    print("s [m...n] : subscribe to group numbers")
-    print("u [m...n] : unsuscribe from group numbers")
-    print("n [n] : display next n groups")
-    print("q : quit submenu\n\n")
+
 
 
 
@@ -483,7 +494,6 @@ def perform_sg_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_SG_response(server_response, rangeStart)
-            command_SG_helpmenu()
             user_input = raw_input("\nSG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
@@ -511,7 +521,6 @@ def perform_sg_mainloop(server,numStep):
                 break
             else:
                 print("invalid SG subcommand")
-                command_SG_helpmenu()
     #completed the ag submenu            
     if(verbose) : print("Finished executing SG menu.")
 
@@ -624,7 +633,6 @@ def perform_rg_mainloop(server, groupName, numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_RG_response(server_response, groupName, rangeStart)
-            command_RG_helpmenu()
             user_input = raw_input("\nRG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
@@ -688,7 +696,6 @@ def perform_rg_mainloop(server, groupName, numStep):
                         # exited submenu for the post, so continue
                 except Exception as error :
                     print("invalid RG subcommand " + str(error))
-                    command_RG_helpmenu()
     #completed the rg submenu            
     if(verbose) : print("Finished executing RG menu.")
 
@@ -756,14 +763,7 @@ def formatted_RG_response(response, groupName, start_num):
         numCount = numCount + 1
         print(format_line)
         
-# RG help menu
-def command_RG_helpmenu():
-    print("\n RG Subcommands")
-    print("[id] : read post number [id]'s contents")
-    print("r [m] | [m-n] : mark post or posts within range as read")
-    print("n : display next set of posts")
-    print("p : make new post on server")
-    print("q : quit submenu\n\n")
+
 
 
 #------------------------------#
@@ -821,10 +821,18 @@ def checkFin(new):
 #--------------------------#
 # create socket
 try:
+    SERVER = argv[1]
+    PORT = int(argv[2])
+except:
+    print("Error: please use \"python ForumClient.py [SERVER_IP ADDRESS] [PORT NO.]\"")
+    exit()
+    
+try:
     socket = create_tcp_socket(SERVER,PORT)
 except:
     print("Could not initiate contact with server, please make sure server is running.")
     exit()
+
 # try loading user data on local machine
 load_file(CLIENT_DATA_ADDR)
 # perform user interaction

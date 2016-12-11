@@ -3,7 +3,9 @@
         "read": {
             "comp.General": [], 
             "comp.framework.angularjs": [], 
-            "comp.lang.java": [], 
+            "comp.lang.java": [
+                "java post 2"
+            ], 
             "comp.lang.ruby": [], 
             "comp.os.threads": [
                 "threads post 2"
@@ -16,19 +18,21 @@
             ]
         }, 
         "subscribed": [
-            "comp.programming", 
             "comp.os.threads", 
-            "comp.lang.java", 
-            "comp.framework.angularjs", 
-            "comp.General", 
-            "comp.lang.ruby"
+            "comp.lang.java"
         ]
     }, 
     "Vinny": {
         "read": {
+            "comp.General": [
+                "General post 2", 
+                "12/11/16 04:55:18_4"
+            ], 
+            "comp.framework.angularjs": [], 
             "comp.framework.jquery": [], 
             "comp.lang.java": [], 
             "comp.lang.python": [], 
+            "comp.lang.ruby": [], 
             "comp.lang.sml": [], 
             "comp.os.threads": [
                 "12/10/16 23:49:04", 
@@ -44,7 +48,10 @@
             ]
         }, 
         "subscribed": [
-            "comp.framework.jquery"
+            "comp.framework.jquery", 
+            "comp.lang.java", 
+            "comp.General", 
+            "comp.lang.python"
         ]
     }
 }

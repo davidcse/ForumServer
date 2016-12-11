@@ -1,5 +1,26 @@
 {
     "comp.General": {
+        "12/11/16 04:54:44_3": {
+            "Author": "Vinny", 
+            "Body": "", 
+            "Date": "12/11/16 04:54:44", 
+            "Group": "comp.General", 
+            "Subject": "how to learn languages"
+        }, 
+        "12/11/16 04:55:18_4": {
+            "Author": "Vinny", 
+            "Body": "\nThe Alienware pc", 
+            "Date": "12/11/16 04:55:18", 
+            "Group": "comp.General", 
+            "Subject": "Best Computers"
+        }, 
+        "12/11/16 04:55:32_5": {
+            "Author": "Vinny", 
+            "Body": "", 
+            "Date": "12/11/16 04:55:32", 
+            "Group": "comp.General", 
+            "Subject": ")(*()&*"
+        }, 
         "General post 1": {
             "Author": "Charlie", 
             "Body": "Generally speaking, why do computer use bits?", 
@@ -356,6 +377,13 @@
             "Date": "12/11/16 03:04:00", 
             "Group": "comp.programming", 
             "Subject": "ruby on rails"
+        }, 
+        "12/11/16 04:41:25_6": {
+            "Author": "Vinny", 
+            "Body": "This is the body of the post! Go Yannie Woohoooo!", 
+            "Date": "12/11/16 04:41:25", 
+            "Group": "comp.programming", 
+            "Subject": "Design Patterns are useful! "
         }, 
         "programming post 1": {
             "Author": "paul", 

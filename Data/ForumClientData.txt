@@ -1,18 +1,27 @@
 {
     "Joe": {
         "read": {
+            "comp.General": [], 
+            "comp.framework.angularjs": [], 
+            "comp.lang.java": [], 
+            "comp.lang.ruby": [], 
             "comp.os.threads": [
                 "threads post 2"
             ], 
             "comp.programming": [
                 "programming post 1", 
                 "programming post 3", 
-                "12/11/16 00:51:40"
+                "12/11/16 00:51:40", 
+                "12/11/16 03:04:00_5"
             ]
         }, 
         "subscribed": [
             "comp.programming", 
-            "comp.os.threads"
+            "comp.os.threads", 
+            "comp.lang.java", 
+            "comp.framework.angularjs", 
+            "comp.General", 
+            "comp.lang.ruby"
         ]
     }, 
     "Vinny": {
@@ -26,11 +35,16 @@
                 "threads post 2", 
                 "threads post 5"
             ], 
-            "comp.programming": []
+            "comp.programming": [
+                "programming post 3", 
+                "programming post 2", 
+                "programming post 1", 
+                "12/11/16 02:13:56_4", 
+                "12/11/16 01:30:14"
+            ]
         }, 
         "subscribed": [
-            "comp.framework.jquery", 
-            "comp.lang.sml"
+            "comp.framework.jquery"
         ]
     }
 }

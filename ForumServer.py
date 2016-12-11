@@ -5,6 +5,7 @@ import traceback
 import threading
 import logging
 import time
+import collections
 
 #----------------------#
 #   GLOBAL DATA        #
@@ -387,9 +388,9 @@ sampleData1 = {
     }
 
 #application data
-database = {}
+database = collections.OrderedDict()
 # debug logging toggle variable
-verbose = 1
+verbose = 0
 
 #------------------------#
 #   GET / SET DATA(BASE) #
@@ -432,7 +433,7 @@ def get_posts_name_date(groupName):
             post_name_date[i] = {"Date":targetGroup[i]["Date"], "Subject":targetGroup[i]["Subject"]}
         return post_name_date
     except:
-        print("Error getting posts for group : " + str(groupName) + ", could not find in database")
+        if verbose: print("Error getting posts for group : " + str(groupName) + ", could not find in database")
         dbLock.release()
         return None
 
@@ -444,7 +445,7 @@ def get_post_id_content(groupName,post_id):
         dbLock.release()
         return postContent
     except:
-        print("Error getting specific post content from " + str(post_id) + " in group " + str(groupName))
+        if verbose: print("Error getting specific post content from " + str(post_id) + " in group " + str(groupName))
         dbLock.release()
 
 # modifies the contents of the post on the server
@@ -469,7 +470,7 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
     for i in range(rangeStart-1,rangeEnd):
         try:
             g = groups[i]
-            print("range " + str(i) + ' is ' + str(g))
+            if verbose: print("range " + str(i) + ' is ' + str(g))
             range_groups.append(g)
         except:
             break
@@ -492,7 +493,7 @@ def fulfill_postrange_request(client,groupName,start,end):
         json.dump(resp,strBuff, indent=4, sort_keys=True)
         client.send(strBuff.getvalue())
         return
-    print(posts)
+    if verbose: print(posts)
     post_list = list(posts)[start-1:end]
     post_date_dict = {}
     for i in post_list:
@@ -560,8 +561,7 @@ def load_json_data(filePath):
     raw_data = file.read()
     jso = json.loads(raw_data)
     file.close()
-    if(verbose):
-        print(jso)
+    if(verbose): print(jso)
     return jso
 
 # stores json data, writing it to text file at the filePath
@@ -586,10 +586,14 @@ def init_database_object():
     #Try loading data file, else create one with sample data and load it.
     try:
         dbLock.acquire()
-        database = load_json_data(DATABASE_FILE_ADDR)
+        tempDict = load_json_data(DATABASE_FILE_ADDR)
+        for i in tempDict:
+            database[i] = tempDict[i]
     except:
         store_json_data(DATABASE_FILE_ADDR,sampleData1)
-        database = load_json_data(DATABASE_FILE_ADDR)
+        tempDict = load_json_data(DATABASE_FILE_ADDR)
+        for i in tempDict:
+            database[i] = tempDict[i]
         if(verbose):
             print("SAMPLEDATA1: ")
             print(sampleData1)
@@ -625,7 +629,7 @@ def perform_protocol_postrange(contentHeaders):
         responseArray = [parentGroup,s,e]
         return responseArray
     except:
-        print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
+        if verbose: print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
         return
     
 
@@ -636,7 +640,7 @@ def perform_protocol_group_items(contentHeaders):
         if(verbose) : print(jso)
         requested_groups_array = jso["GROUPS"]
     except:
-        print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
+        if verbose: print("client did not send a valid contentHeader for requested groups : " + str(contentHeaders))
         return
     # create mapping of the group and the items it contains
     responseDict = {}
@@ -646,7 +650,7 @@ def perform_protocol_group_items(contentHeaders):
             responseDict[g] = database[g]
         return responseDict
     except Exception as error:
-        print("Client requested a set of group that does not exist on server")
+        if verbose: print("Client requested a set of group that does not exist on server")
     finally:
         dbLock.release()
     return
@@ -664,7 +668,7 @@ def perform_protocol_postid(contentHeaders):
         identifiers.append(jso["POSTID"])
         return identifiers
     except:
-        print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
+        if verbose: print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
     return 
 
     
@@ -675,8 +679,8 @@ def perform_protocol_setpost_id(contentHeaders):
         if(verbose): print jso
         return jso
     except Exception as err:
-        print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
-        print("Error is : " + str(err))
+        if verbose: print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
+        if verbose: print("Error is : " + str(err))
     return 
  
 # MAIN FUNCTION FOR THREADS
@@ -721,11 +725,12 @@ def handleClient(client, addr):
             #send acknowledgement that data transfer is finished. 
             #client.send("FIN")
             send_end_protocol(client)
-            if(verbose): print("\n Finished request: " + str(resp) +" from " + str(addr))
+            print("\n Finished request: " + str(resp) +" from " + str(addr))
         
         # Issue with connected client socket.
         except Exception as error :
-            print("Server encountered error, or maybe client not available, closing connection... \n" + str(error))
+            if verbose: print("Server encountered error, or maybe client not available, closing connection... \n" + str(error))
+            print("Closed client connection: " + str(addr))
             client.close()
             return
             
@@ -750,14 +755,14 @@ if(verbose): print('Server binded at : ' + str(port))
 # ... and listen for anyone to contact you
 # queueing up to five requests if you get a backlog
 s.listen(5)
-if(verbose): print('server is listening')
+print('server is listening at port :'+ str(port))
 
 
 # Wait for a connection
 while True:
     connect, address = s.accept()
     # SPAWN NEW THREAD
-    print("New Connection Found")
+    print("New client connected successfully: "+ str(address))
     t = threading.Thread(target=handleClient, args=(connect,address))
     t.start()
     

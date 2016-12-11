@@ -363,7 +363,7 @@ def perform_ag_mainloop(server,numStep):
             elif args[0] == "u" :
                 execute_AG_unsubscribe(args[1:],rangeStart,rangeEnd,server_response)           
             elif args[0] == "n" :
-                print("Displaying next " + str(numStep) + "results")
+                print("Displaying next " + str(numStep) + " results\n")
                 # recalculate range variables and query server for groups within those range
                 rangeStart = rangeStart + numStep
                 rangeEnd = rangeStart + numStep - 1
@@ -371,16 +371,16 @@ def perform_ag_mainloop(server,numStep):
                 server_response  = start_polling(server)
                 # recontinue submenu control flow evaluation or else exit command.
                 if(server_response == None or server_response == [] or server_response == ""):
-                    print("server did not send any more group information ... ")
+                    print("The is no more content to show.\nExiting view mode")
                     break
             elif args[0] == "q" :
-                print("quitting AG Mode")
+                print("quitting AG Mode\n")
                 break
             else:
-                print("invalid AG subcommand")
+                print("invalid AG subcommand\n")
                 command_AG_helpmenu()
     #completed the ag submenu            
-    if(verbose) : print("Finished executing AG menu.")
+    if(verbose) : print("Finished executing AG menu.\n")
 
 
 
@@ -406,7 +406,7 @@ def execute_AG_subscribe(arglist, start, end, response):
         try:
             optionNum = int(i)
         except:
-            print("arguments contained something that was not an integer")
+            print("arguments contained something that was not an integer\n")
             break
         if(optionNum>=start and optionNum<= end):
             try:
@@ -439,7 +439,7 @@ def execute_AG_unsubscribe(arglist, start, end, response):
                 mark_as_unsubscribed(unsub_group)
                 save_file()
                 unsubscribed_groups.append(unsub_group)
-                print("unsubscribe to no. " + str(optionNum) + " was successful")
+                if verbose : print("unsubscribe to no. " + str(optionNum) + " was successful")
             except IndexError :
                 print("Argument : " + str(i) + " is not within range")
                 break
@@ -495,7 +495,7 @@ def perform_sg_mainloop(server,numStep):
                     # remove the recently unsubscribed group from the server response to be redisplayed in the next SG-Format.
                     server_response = {key: value for key, value in server_response.items() if key not in  unsubscribed_groups}
             elif args[0] == "n" :
-                print("Displaying next " + str(numStep) + "results")
+                print("Displaying next " + str(numStep) + " results")
                 # recalculate range variables and query server for groups within those range
                 subscribed_array = get_subscriptions()
                 rangeStart = rangeStart + numStep
@@ -504,7 +504,7 @@ def perform_sg_mainloop(server,numStep):
                 server_response = start_polling(server)
                 # recontinue submenu control flow evaluation or else exit command.
                 if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
-                    print("server did not send any more group information ... ")
+                    print("The is no more content to show.\nExiting view mode")
                     break
             elif args[0] == "q" :
                 print("quitting SG Mode")
@@ -544,7 +544,7 @@ def execute_SG_unsubscribe(arglist, start, end, response):
     unsubscribed_groups = []
     for i in arglist:
         try:
-            print("unsubscribing from number " + str(i))
+            if verbose : print("unsubscribing from number " + str(i))
             optionNum = int(i)
         except:
             print("arguments contained something that was not an integer")
@@ -554,7 +554,7 @@ def execute_SG_unsubscribe(arglist, start, end, response):
                 group_to_unsubscribe = list(response)[optionNum-start]
                 mark_as_unsubscribed(group_to_unsubscribe) #convert dict to list on the fly, then access the Nth key element. 
                 save_file()
-                print("unsubscribe to no. " + str(optionNum) + " was successful")
+                if verbose : print("unsubscribe to no. " + str(optionNum) + " was successful")
                 unsubscribed_groups.append(group_to_unsubscribe)
             except IndexError :
                 print("Argument : " + str(i) + " is not within range")
@@ -600,9 +600,6 @@ def construct_message():
         if user_input == ".":
             break
         postMessage = postMessage + "\n" + user_input
-    print("EXITED LOOP:")
-    print('SUBJECT: ' + str(subject))
-    print('Message: ' + str(postMessage))
     return [subject,postMessage[1:]]
 
 
@@ -617,7 +614,7 @@ def perform_rg_mainloop(server, groupName, numStep):
     server.send(protocol_postrange(groupName,rangeStart,rangeEnd))
     server_response = start_polling(server)
     # handle and display the server's response
-    print(server_response)
+    if verbose: print(server_response)
     if(server_response == None or server_response ==[] or server_response == "" or server_response == {}):
         if(verbose): print("Could not evaluate response from server.")
     # CHECK FOR NOGRP ERROR
@@ -644,7 +641,7 @@ def perform_rg_mainloop(server, groupName, numStep):
                 # persist the read status change into data file
                 save_file()
             elif args[0] == "n" :
-                print("Displaying next " + str(numStep) + "results")
+                print("Displaying next " + str(numStep) + " results")
                 # recalculate range variables and query server for groups within those range
                 rangeStart = rangeStart + numStep
                 rangeEnd = rangeStart + numStep - 1
@@ -652,7 +649,7 @@ def perform_rg_mainloop(server, groupName, numStep):
                 server_response = start_polling(server)
                 # recontinue submenu control flow evaluation or else exit command.
                 if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
-                    print("server did not send any more group information ... ")
+                    print("The is no more content to show.\nExiting view mode")
                     break
             elif args[0] == "p" : 
                 msgArr = construct_message()
@@ -660,16 +657,16 @@ def perform_rg_mainloop(server, groupName, numStep):
                 server.send(protocol_setpost_id(groupName,msgArr))
                 server_response = start_polling(server)
                 if(server_response == None):
-                    print("post was unsuccessful")
+                    if verbose: print("post was unsuccessful")
                 elif(isinstance(server_response,list) and len(server_response)>0 and server_response[0]=="CREATE_POST_SUCCESSFUL"):
-                    print("server received post.")
+                    if verbose: print("server received post.")
                 else:
-                    print("server sent unexpected" + str(server_response))
+                    if verbose: print("server sent unexpected" + str(server_response))
                 #get the new state of posts from server
                 server.send(protocol_postrange(groupName,rangeStart,rangeEnd))
                 server_response = start_polling(server)
                 if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
-                    print("server did not send any more group information ... ")
+                    print("No more posts for this group to display.")
                     break
             elif args[0] == "q" :
                 print("quitting RG Mode")
@@ -715,7 +712,7 @@ def interface_postid_submenu(server, groupName, post_id, numStep):
                 start = start + numStep
                 lines_in_post_body = serv_resp[post_id]["Body"].split("\n")
                 if(start > len(lines_in_post_body)):
-                    print("The post has no more content to show.\n Exiting post view mode")
+                    print("The is no more content to show.\nExiting view mode")
                     break
             elif args[0] ==  "q" :
                 print("quitting post [id] submenu\n\n")
@@ -786,7 +783,7 @@ def start_polling(s):
     while True:
         resp = s.recv(1)
         if(checkFin(resp)):
-            print("Received FIN, will stop polling")
+            if verbose : print("Received FIN, will stop polling")
             fin = ""
             break
         else:
@@ -801,7 +798,7 @@ def start_polling(s):
         if(verbose): print(responseJso)
         return responseJso
     except:
-        print("Error Assembling server jso, finished polling")
+        if verbose: print("Error Assembling server jso, finished polling")
 
 
 def checkFin(new):
@@ -823,7 +820,11 @@ def checkFin(new):
 #   EXECUTE SCRIPT         #
 #--------------------------#
 # create socket
-socket = create_tcp_socket(SERVER,PORT)
+try:
+    socket = create_tcp_socket(SERVER,PORT)
+except:
+    print("Could not initiate contact with server, please make sure server is running.")
+    exit()
 # try loading user data on local machine
 load_file(CLIENT_DATA_ADDR)
 # perform user interaction

@@ -82,7 +82,22 @@ sampleData1 = {
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn python ",
                         "Body":"python is the best"
-                    }
+                    },
+				'python post 2':{
+                        "Group" : "comp.lang.python",
+                        "Author":"Paul",
+                        "Date": "12/6/2017 3:15P",
+                        "Subject":"learn python advanced ",
+                        "Body":"python can be very advanced"
+                    },
+				'python post 3':{
+                        "Group" : "comp.lang.python",
+                        "Author":"Bradly",
+                        "Date": "12/6/2017 3:15P",
+                        "Subject":"I think I just broke my python ",
+                        "Body":"I think I broke it guys.I can't find my compiler. Any advice?"
+                    }	
+					
             },
         'comp.lang.java':{
                     'java post 1':{
@@ -91,6 +106,20 @@ sampleData1 = {
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn java ",
                         "Body":"java is the best"
+                    },
+					'java post 2':{
+                        "Group" : "comp.lang.java",
+                        "Author":"Shaun",
+                        "Date": "12/6/2017 3:14P",
+                        "Subject":"The truth about java and why it is king! ",
+                        "Body":"java is the best thats is my entire argument gg"
+                    },
+					'java post 3':{
+                        "Group" : "comp.lang.java",
+                        "Author":"Shaun",
+                        "Date": "12/6/2017 3:05P",
+                        "Subject":"Java enums ",
+                        "Body":"I forgot what I was taught in 219! Can someone explain enums again and what is lmgtfy?"
                     }
             },
         'comp.lang.c':{
@@ -100,6 +129,20 @@ sampleData1 = {
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn C ",
                         "Body":"C is the best"
+                    },
+					'c post 2':{
+                        "Group" : "comp.lang.c",
+                        "Author":"King",
+                        "Date": "12/6/2017 3:01P",
+                        "Subject":"Learn how to sort in c",
+                        "Body":"1 2 3 4 5 "
+                    },
+					'c post 3':{
+                        "Group" : "comp.lang.c",
+                        "Author":"Patsy",
+                        "Date": "12/6/2017 3:04P",
+                        "Subject":"My company says I'm to blame!",
+                        "Body":"I am not a patsy like that! I git pushed! I swear!"
                     }
             },
         'comp.lang.javascript':{
@@ -109,6 +152,20 @@ sampleData1 = {
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn Javascript ",
                         "Body":"Javascript is the best"
+                    },
+					'javascript post 2':{
+                        "Group" : "comp.lang.javascript",
+                        "Author":"Jimmy",
+                        "Date": "12/6/2017 3:01P",
+                        "Subject":"learn Javascript lesson 2",
+                        "Body":"Javascript is the best round 2"
+                    },
+					'javascript post 3':{
+                        "Group" : "comp.lang.javascript",
+                        "Author":"Jimmy, but Slim",
+                        "Date": "12/8/2017 3:02P",
+                        "Subject":"learn Javascript lesson 3",
+                        "Body":"Javascript is the best round 3"
                     }
             },
         'comp.lang.prolog':{
@@ -118,6 +175,20 @@ sampleData1 = {
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn Javascript ",
                         "Body":"Javascript is the best"
+                },
+				'prolog post 2':{
+                        "Group" : "comp.lang.prolog",
+                        "Author":"Rob, but Angry",
+                        "Date": "12/7/2017 3:00P",
+                        "Subject":"learn Javascript 2",
+                        "Body":"Javascript is pretty good"
+                },
+				'prolog post 3':{
+                        "Group" : "comp.lang.prolog",
+                        "Author":"Fred",
+                        "Date": "12/11/2017 3:00P",
+                        "Subject":"learn Javascript 3",
+                        "Body":"Javascript is the ultimate language"
                 }
             },
         'comp.lang.sml':{
@@ -127,33 +198,181 @@ sampleData1 = {
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn sml ",
                         "Body":"sml is the best"
+                },
+				'sml post 2':{
+                        "Group" : "comp.lang.sml",
+                        "Author":"Timmy",
+                        "Date": "12/6/2017 3:30P",
+                        "Subject":"learn sml 2",
+                        "Body":"sml is the best and I have 2 feet"
+                },
+				'sml post 3':{
+                        "Group" : "comp.lang.sml",
+                        "Author":"Dale Dimmadome",
+                        "Date": "12/6/2017 3:50P",
+                        "Subject":"learn sml 3",
+                        "Body":"sml is the best. Thank you for attending lesson 3"
                 }
             },
         'comp.lang.ruby':{
                 'ruby post 1':{
                         "Group" : "comp.lang.ruby",
-                        "Author":"Robert",
+                        "Author":"Sam",
                         "Date": "12/6/2017 3:00P",
+                        "Subject":"learn Ruby from a veteran!",
+                        "Body":"Rubys are worth more than sapphires"
+                },
+				'ruby post 2':{
+                        "Group" : "comp.lang.ruby",
+                        "Author":"Robby",
+                        "Date": "12/6/2017 3:30P",
                         "Subject":"learn ruby ",
                         "Body":"ruby is the best"
+                },
+				'ruby post 3':{
+                        "Group" : "comp.lang.ruby",
+                        "Author":"Marky Mark AKA Dean",
+                        "Date": "12/11/2017 3:00P",
+                        "Subject":"learn ruby ",
+                        "Body":"Dean says Sarah likes him more than Ruby"
                 }
             },
         'comp.framework.angularjs':{
                 'ruby post 1':{
                         "Group" : "comp.framework.angularjs",
-                        "Author":"Robert",
+                        "Author":"Andrew Denn",
                         "Date": "12/6/2017 3:00P",
                         "Subject":"learn angularjs ",
                         "Body":"angularjs is the best"
+                },
+				'ruby post 2':{
+                        "Group" : "comp.framework.angularjs",
+                        "Author":"TennisBoi69",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn angular from a cube himself",
+                        "Body":"I have 6 faces. People say I'm bipolar."
+                },
+				'ruby post 3':{
+                        "Group" : "comp.framework.angularjs",
+                        "Author":"R.O.B.",
+                        "Date": "12/6/2017 3:00P",
+                        "Subject":"learn angularjs 3",
+                        "Body":"i'm tired of angles."
                 }
             },
         'comp.framework.jquery':{
                 'jquery post 1':{
                         "Group" : "comp.framework.jquery",
+                        "Author":"DaveGotMoney",
+                        "Date": "12/6/2017 3:40P",
+                        "Subject":"JQUERY how to query101",
+                        "Body":"101 101 101 101 Error 200"
+                    },
+				'jquery post 2':{
+                        "Group" : "comp.framework.jquery",
                         "Author":"Robert",
-                        "Date": "12/6/2017 3:00P",
-                        "Subject":"learn jquery ",
-                        "Body":"jquery is the best"
+                        "Date": "12/6/2017 3:55P",
+                        "Subject":"learn jquery from a beginner",
+                        "Body":"I know nothing ask Dave."
+                    },
+				'jquery post 3':{
+                        "Group" : "comp.framework.jquery",
+                        "Author":"Vincent",
+                        "Date": "12/10/2017 3:00P",
+                        "Subject":"I couldn't learn from Rob!",
+                        "Body":"I guess I shoulda asked Dave? Right ;("
+                    }
+            },
+			'comp.framework.REXX':{
+                'REXX post 1':{
+                        "Group" : "comp.framework.REXX",
+                        "Author":"MoneyMitch",
+                        "Date": "12/6/2017 3:40P",
+                        "Subject":"who IS Rex?",
+                        "Body":"A T-Rex has small hands"
+                    },
+				'REXX post 2':{
+                        "Group" : "comp.framework.REXX",
+                        "Author":"BobDaniels",
+                        "Date": "12/15/2017 3:55P",
+                        "Subject":"REXX",
+                        "Body":"My friend's dad codes in REXX. I know a guy you could say."
+                    },
+				'REXX post 3':{
+                        "Group" : "comp.framework.REXX",
+                        "Author":"Rad Raphael55",
+                        "Date": "12/10/2017 3:24P",
+                        "Subject":"Problems with grammar",
+                        "Body":"Where are the MANPAGES? Where is my family? Why has everyone abandonded me?"
+                    }
+            },
+			'comp.Ubuntu':{
+                'Ubuntu post 1':{
+                        "Group" : "comp.Ubuntu",
+                        "Author":"Ubuntu god",
+                        "Date": "12/6/2017 3:44P",
+                        "Subject":"INTRO TO UBUNTU",
+                        "Body":"First download your ubuntu please. Hands up."
+                    },
+				'Ubuntu post 2':{
+                        "Group" : "comp.Ubuntu",
+                        "Author":"BobbyD",
+                        "Date": "12/1/2017 3:55P",
+                        "Subject":"Ubuntu",
+                        "Body":"ubuntu is the best hands down. I have no arms"
+                    },
+				'Ubuntu post 3':{
+                        "Group" : "comp.Ubuntu",
+                        "Author":"SilverSurfer",
+                        "Date": "12/10/2017 3:24P",
+                        "Subject":"What is the best version?",
+                        "Body":"I just have the version that JWONG told me to install. Any preferences?"
+                    }
+            },
+			'comp.General':{
+                'General post 1':{
+                        "Group" : "comp.General",
+                        "Author":"Charlie",
+                        "Date": "12/6/2017 3:44P",
+                        "Subject":"General question",
+                        "Body":"Generally speaking, why do computer use bits?"
+                    },
+				'General post 2':{
+                        "Group" : "comp.General",
+                        "Author":"Dennis",
+                        "Date": "12/1/2017 3:55P",
+                        "Subject":"What does a computer cost? Am I using a computer right now?",
+                        "Body":"I have steadily lost control of my life. This is a memory."
+                    },
+				'General post 3':{
+                        "Group" : "comp.General",
+                        "Author":"SunGod",
+                        "Date": "12/10/2017 3:24P",
+                        "Subject":"What is a power supply?",
+                        "Body":"I just have the version that JWONG told me to install. Any preferences?"
+                    }
+            },
+			'comp.Parrot':{
+                'Parrot post 1':{
+                        "Group" : "comp.Parrot",
+                        "Author":"A bird",
+                        "Date": "12/1/2017 3:00P",
+                        "Subject":"learn parrot",
+                        "Body":"parrot is the best"
+                    },
+				'Parrot post 2':{
+                        "Group" : "comp.Parrot",
+                        "Author":"A red bird",
+                        "Date": "12/2/2017 3:01P",
+                        "Subject":"learn parrot2",
+                        "Body":"Just a brief lesson 2 on parrot. This is a language lol."
+                    },
+				'Parrot post 3':{
+                        "Group" : "comp.Parrot",
+                        "Author":"Bird lover",
+                        "Date": "12/3/2017 3:46P",
+                        "Subject":"learn parrot3",
+                        "Body":"This has been lesson 3. Thank you. Goodnight my fans!"
                     }
             }
     }

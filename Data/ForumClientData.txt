@@ -1,1 +1,1 @@
-{"Joe": {"read": {"comp.programming": ["programming post 1", "programming post 3"], "comp.os.threads": ["threads post 2"]}, "subscribed": ["comp.programming", "comp.os.threads"]}, "Vinny": {"read": {"bla": []}, "subscribed": ["comp.lang.python", "comp.lang.java"]}}
+{"Joe": {"read": {"comp.programming": ["programming post 1", "programming post 3"], "comp.os.threads": ["threads post 2"]}, "subscribed": ["comp.programming", "comp.os.threads"]}, "Vinny": {"read": {"comp.programming": [], "bla": []}, "subscribed": ["comp.lang.python", "comp.lang.java"]}}

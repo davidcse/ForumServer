@@ -3,6 +3,7 @@ import json
 from StringIO import StringIO
 from os import path 
 import traceback
+import time
 #--------------------#
 #   GLOBAL DATA      #
 #--------------------#
@@ -584,6 +585,21 @@ def find_read_range(num_str):
         print("Entered an invalid range of numbers")
     return start_end_arr
     
+def construct_message():
+    print("creating new post...")
+    subject = raw_input("Please enter the subject\n")
+    print("Please enter the body: [press ENTER,PERIOD,ENTER to finish]\n")
+    postMessage = ""
+    while True:
+        user_input = raw_input(" >> ")
+        if user_input == ".":
+            break
+        postMessage = postMessage + "\n" + user_input
+    print("EXITED LOOP:")
+    print('SUBJECT: ' + str(subject))
+    print('Message: ' + str(postMessage))
+    return [subject,postMessage[1:],time.strftime("%c")]
+
 
 # Asks server to display N-number of posts available for a specified group.
 # @param : server , socket of server
@@ -634,7 +650,9 @@ def perform_rg_mainloop(server, groupName, numStep):
                     print("server did not send any more group information ... ")
                     break
             elif args[0] == "p" : 
-                print("execute RG_P")                
+                msgArr = construct_message()
+                print(msgArr)
+                
             elif args[0] == "q" :
                 print("quitting RG Mode")
                 break

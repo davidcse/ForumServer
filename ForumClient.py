@@ -12,6 +12,9 @@ CLIENT_DATA_ADDR = "./Data/ForumClientData.txt"
 DEFAULT_STEP = 5
 verbose = 0
 
+global fin
+fin = ""
+
 # dictionary storing user settings for the current client.
 userData ={}
 currentUserId = ""
@@ -246,11 +249,9 @@ def print_server_response(serverResp):
 def print_commandline_interface():
     print("\n\n*****************************")
     print("**\tMAIN MENU\t **")
-    print(" 1) login [YOUR ID] " )
-    print(" 2) special instructions" )
-    print(" 3) help " )
+    print("login [YOUR ID] " )
     print("******************************")
-    
+
 def print_commandline_interface2():
     print("\n\n*****************************")
     print("**\tMAIN MENU\t **")
@@ -258,7 +259,6 @@ def print_commandline_interface2():
     print("sg [num results to display] : subscribed groups")
     print("rg [Group Name][num results to display] : read group")
     print("logout : end sesssion")
-    print(" 5) help " )
     print("******************************")
 
 
@@ -266,7 +266,8 @@ def print_commandline_interface2():
 #@param server, server socket
 def user_interface(server):
     #display options and get user choice
-    print_commandline_interface()
+    if(currentUserId == ""):print_commandline_interface()
+    else:print_commandline_interface2()
     user_input = raw_input("\n\n>>")
     args = trim_to_arg_array(user_input)
     #perform the processed user arguments
@@ -340,6 +341,7 @@ def perform_ag_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_AG_response(server_response, rangeStart)
+            command_AG_helpmenu()
             user_input = raw_input("\nAG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
@@ -470,6 +472,7 @@ def perform_sg_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_SG_response(server_response, rangeStart)
+            command_SG_helpmenu()
             user_input = raw_input("\nSG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
@@ -594,6 +597,7 @@ def perform_rg_mainloop(server, groupName, numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_RG_response(server_response, groupName, rangeStart)
+            command_RG_helpmenu()
             user_input = raw_input("\nRG >>")
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
@@ -731,20 +735,16 @@ def start_polling(s):
     if verbose : print("waiting for server response")
     serverResponseString = ""
     while True:
-        resp = s.recv(1024)
-        if(resp == ""):
-            print("encountered nil, will stop polling")
-            break
-        elif(resp == "FIN"):
+        resp = s.recv(1)
+        if(checkFin(resp)):
             print("Received FIN, will stop polling")
             break
         else:
-            print_server_response(resp)
             serverResponseString = serverResponseString + resp
     try:
 
         # TRIM END PROTOCOL OFF SERVER RESPONSE
-        print(serverResponseString)
+        print("Server Response:" + serverResponseString)
         serverResponseString = serverResponseString[0:-2]
         responseJso = json.loads(serverResponseString)
         if(verbose): print("Assembled server response object")
@@ -752,6 +752,22 @@ def start_polling(s):
         return responseJso
     except:
         print("Error Assembling server jso, finished polling")
+
+
+def checkFin(new):
+    global fin
+    if(fin == "" and new == "\n"):
+        fin = fin + new
+        return False
+    elif fin == "\n" and new == ".":
+        fin = fin + new
+        return False;
+    elif fin == "\n." and new == "\n":
+        fin = ""
+        return True
+    else:
+        fin = ""
+        return False
 
 #--------------------------#
 #   EXECUTE SCRIPT         #

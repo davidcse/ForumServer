@@ -256,6 +256,16 @@ def print_commandline_interface():
     print(" 4) rg GROUP_NAME [NUM_POSTS]" )
     print(" 5) help " )
     print("******************************")
+	
+def print_commandline_interface2():
+    print("\n\n*****************************")
+    print("**\tMAIN MENU\t **")
+    print("ag [num results to display] : all groups")
+    print("sg [num results to display] : subscribed groups")
+    print("rg [Group Name][num results to display] : read group")
+    print("logout : end sesssion")
+    print(" 5) help " )
+    print("******************************")
 
 
 #display UI and perform user request
@@ -735,6 +745,7 @@ def start_polling(s):
 	    serverResponseString = serverResponseString + resp
     try:
         # TRIM END PROTOCOL OFF SERVER RESPONSE
+        print(serverResponseString)
         serverResponseString = serverResponseString[0:-2]
         responseJso = json.loads(serverResponseString)
         if(verbose): print("Assembled server response object")

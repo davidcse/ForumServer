@@ -505,8 +505,25 @@ def fulfill_post_id_request(client,groupName,postId):
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
     client.send(strBuffer.getvalue())
             
+def fulfill_setpost_id_request(client,postData):
+    group = postData["GROUP"]
+    postId = postData["POSTID"]
+    # build content
+    content = {
+        "Group" : group,
+        "Author": postData["AUTHOR"],
+        "Date": postData["DATE"],
+        "Subject": postData["SUBJECT"],
+        "Body":postData["BODY"]
+    }
+    set_post(group,postId,content)
+    # tell the client confirmation 
+    strBuffer = StringIO()
+    resp = ["CREATE_POST_SUCCESSFUL"]
+    json.dump(resp,strBuffer)
+    if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
+    client.send(strBuffer.getvalue())
 
-    
 #----------------------#
 #  DATA MANAGEMENT     #
 #----------------------#
@@ -613,6 +630,19 @@ def perform_protocol_postid(contentHeaders):
         print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
     return 
 
+    
+def perform_protocol_setpost_id(contentHeaders):
+    if verbose : print("Evaluating protocol : " + str(contentHeaders))
+    try: 
+        jso = json.loads(contentHeaders)
+        if(verbose): print jso
+        return jso
+    except Exception as err:
+        print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
+        print("Error is : " + str(err))
+    return 
+    
+    
 #--------------------#
 #   SCRIPT           #
 #--------------------#
@@ -662,9 +692,12 @@ while True:
                 fulfill_group_items_request(connect,group_dictionary)
         elif(clientRequest[0] =="GETPOSTID"):
             post_id_params = perform_protocol_postid(clientRequest[1])
-            print(post_id_params)
             if(post_id_params  != None):
                 fulfill_post_id_request(connect,post_id_params[0],post_id_params[1])
+        elif(clientRequest[0]=="SETPOSTID"):
+            post_data = perform_protocol_setpost_id(clientRequest[1])
+            if(post_data  != None):
+                fulfill_setpost_id_request(connect,post_data)
         else:
             # client violated protocol in some way.                        
             print("client did not send a valid protocol matched to a request")

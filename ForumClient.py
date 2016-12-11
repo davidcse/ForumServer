@@ -185,8 +185,15 @@ def protocol_group_items(groupNameArray):
 
 
 # protocol to ask server to add a post to the discussion group. 
-def protocol_setpost_id(group,post_id,post_content):
-    build_string = 'SETPOSTID:{'+'"START":'+ str(start) + ',"END":'+str(end)+'}'
+def protocol_setpost_id(group,postArray):
+    # build post content
+    postId = postArray[2]
+    subj = postArray[0]
+    body = postArray[1]
+    date = postArray[2]
+    auth = currentUserId
+    # build the string
+    build_string = 'SETPOSTID:{"GROUP":"'+ str(group) + '","POSTID":"'+ str(postId) + '","SUBJECT":"'+ str(subj) +'","AUTHOR":"'+ str(auth) + '","DATE":"' + str(date) + '","BODY":"'+ str(body)+'"}'
     if(verbose):print("protocol : " + build_string)
     return build_string
 
@@ -652,7 +659,20 @@ def perform_rg_mainloop(server, groupName, numStep):
             elif args[0] == "p" : 
                 msgArr = construct_message()
                 print(msgArr)
-                
+                server.send(protocol_setpost_id(groupName,msgArr))
+                server_response = start_polling(server)
+                if(server_response == None):
+                    print("post was unsuccessful")
+                elif(isinstance(server_response,list) and len(server_response)>0 and server_response[0]=="CREATE_POST_SUCCESSFUL"):
+                    print("server received post.")
+                else:
+                    print("server sent unexpected" + str(server_response))
+                #get the new state of posts from server
+                server.send(protocol_postrange(groupName,rangeStart,rangeEnd))
+                server_response = start_polling(server)
+                if(server_response == None or server_response == [] or server_response == "" or server_response =={}):
+                    print("server did not send any more group information ... ")
+                    break
             elif args[0] == "q" :
                 print("quitting RG Mode")
                 break

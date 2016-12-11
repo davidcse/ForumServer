@@ -449,7 +449,7 @@ while True:
 
         #send acknowledgement that data transfer is finished. 
         #connect.send("FIN")
-        send_end_protocol(client)
+        send_end_protocol(connect)
         if(verbose): print("\n Finished request: " + str(resp) +" from " + str(address))
         
     # Issue with connected client socket.

@@ -463,6 +463,12 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
 # @end : int , end of the post range 
 def fulfill_postrange_request(client,groupName,start,end):
     posts = get_posts_name_date(groupName)
+    if posts == None:
+        strBuff = StringIO()
+        resp = ["NOGRP"]
+        json.dump(resp,strBuff)
+        client.send(strBuff.getvalue())
+        return
     print(posts)
     post_list = list(posts)[start-1:end]
     post_date_dict = {}

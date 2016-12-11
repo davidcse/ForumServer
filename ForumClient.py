@@ -596,8 +596,12 @@ def perform_rg_mainloop(server, groupName, numStep):
     server.send(protocol_postrange(groupName,rangeStart,rangeEnd))
     server_response = start_polling(server)
     # handle and display the server's response
+    print(server_response)
     if(server_response == None or server_response ==[] or server_response == "" or server_response == {}):
         if(verbose): print("Could not evaluate response from server.")
+    # CHECK FOR NOGRP ERROR
+    elif isinstance(server_response,list) and len(server_response)>0 and server_response[0]=="NOGRP":
+        print("NOGRP ERROR: Group does not exist")
     else:
         # print most recent server response and ask for submenu input
         while True:

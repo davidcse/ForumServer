@@ -732,20 +732,22 @@ def create_tcp_socket(server,port):
 
 # Listening for data from server
 def start_polling(s):
+    global fin
     if verbose : print("waiting for server response")
     serverResponseString = ""
     while True:
         resp = s.recv(1)
         if(checkFin(resp)):
             print("Received FIN, will stop polling")
+            fin = ""
             break
         else:
             serverResponseString = serverResponseString + resp
     try:
 
         # TRIM END PROTOCOL OFF SERVER RESPONSE
-        print("Server Response:" + serverResponseString)
         serverResponseString = serverResponseString[0:-2]
+        if verbose: print("Server Response:" + serverResponseString)
         responseJso = json.loads(serverResponseString)
         if(verbose): print("Assembled server response object")
         if(verbose): print(responseJso)

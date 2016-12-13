@@ -14,7 +14,7 @@ server = ""
 port = 60000
 
 # Filepath to the json-formatted text file
-DATABASE_FILE_ADDR = "./Data/ServerDataFile.txt"
+DATABASE_FILE_ADDR = "./ServerDataFile.txt"
 
 # LOCKS
 global dbLock

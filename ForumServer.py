@@ -400,7 +400,8 @@ verbose = 0
 #------------------------#
 
 def send_end_protocol(client):
-    client.send("\n.\n")
+    fin = "\n.\n"
+    client.send(fin.encode())
 
 # returns an array of groupnames on this database
 def get_all_groups():
@@ -480,7 +481,7 @@ def fulfill_grouprange_request(client,rangeStart, rangeEnd):
     strBuffer = StringIO()
     json.dump(range_groups,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send grouprange response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
+    client.send(strBuffer.getvalue().encode())
 
 
 # fulfills a request for post id's within a group to the client. 
@@ -494,7 +495,7 @@ def fulfill_postrange_request(client,groupName,start,end):
         strBuff = StringIO()
         resp = ["NOGRP"]
         json.dump(resp,strBuff, indent=4, sort_keys=True)
-        client.send(strBuff.getvalue())
+        client.send(strBuff.getvalue().encode())
         return
     if verbose: print(posts)
     post_list = list(posts)[start-1:end]
@@ -504,7 +505,7 @@ def fulfill_postrange_request(client,groupName,start,end):
     strBuffer = StringIO()
     json.dump(post_date_dict,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send GETPOSTRANGE response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
+    client.send(strBuffer.getvalue().encode())
     
 
 
@@ -515,7 +516,7 @@ def fulfill_group_items_request(client, group_dictionary):
     strBuffer = StringIO()
     json.dump(group_dictionary,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
+    client.send(strBuffer.getvalue().encode())
 
 
 # fulfills a getpost request for the client. 
@@ -530,7 +531,7 @@ def fulfill_post_id_request(client,groupName,postId):
     resp = {postId : content}
     json.dump(resp,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
+    client.send(strBuffer.getvalue().encode())
             
 def fulfill_setpost_id_request(client,postData):
     uniqueTime = time.strftime("%c")
@@ -552,7 +553,7 @@ def fulfill_setpost_id_request(client,postData):
     resp = ["CREATE_POST_SUCCESSFUL"]
     json.dump(resp,strBuffer, indent=4, sort_keys=True)
     if(verbose): print("Preparing to send SG response: " + strBuffer.getvalue())
-    client.send(strBuffer.getvalue())
+    client.send(strBuffer.getvalue().encode())
 
 #----------------------#
 #  DATA MANAGEMENT     #
@@ -691,8 +692,11 @@ def handleClient(client, addr):
     client.settimeout(1)
     while True:
         try:
-            # Receive up to 1024 bytes 
-            resp = (client.recv(1024)).strip()
+            # Receive up to 1024 bytes, and try to convert to string
+            resp = client.recv(1024)
+            resp = resp.decode()
+            resp = str(resp)
+            resp = resp.strip()
             if(verbose): print("received message : " + str(resp) + " from : " + str(addr))
         
             # separate the type of protocol from the contentHeaders
@@ -725,7 +729,6 @@ def handleClient(client, addr):
                 print("client did not send a valid protocol matched to a request")
 
             #send acknowledgement that data transfer is finished. 
-            #client.send("FIN")
             send_end_protocol(client)
             print("\n Finished request: " + str(resp) +" from " + str(addr))
         
@@ -754,8 +757,20 @@ s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 if(verbose): print('Initialized Socket')
 
 # Bind to TCP port 
-s.bind((server,port))
-if(verbose): print('Server binded at : ' + str(port))
+for i in range(0,10,1):
+    try: 
+        s.bind((server,port))
+        if(verbose): print('Server binded at : ' + str(port))
+        break
+    except OSError as bindingError:
+        print(str(bindingError))
+        port = port + 1
+        print("Trying another socket : " + str(port))
+    except socket.error as bindingError:
+        print(str(bindingError))
+        port = port + 1
+        print("Trying another socket : " + str(port))
+
 
 # listen for clients, queueing up to 10 requests for backlog
 s.listen(10)

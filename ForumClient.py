@@ -163,14 +163,14 @@ def get_num_unread_posts(groupName, serverGroupObj):
 def protocol_grouprange(start,end):
     build_string = 'GETGROUPRANGE:{'+'"START":'+ str(start) + ',"END":'+str(end)+'}'
     if(verbose):print("protocol : " + build_string)
-    return build_string
+    return build_string.encode()
 
 
 # asks server for an array of posts, within range start to end, for the specified group. 
 def protocol_postrange(groupName,start,end):
     build_string = 'GETPOSTRANGE:{"GROUPID":"'+ str(groupName) + '","START":'+ str(start) + ',"END":'+str(end)+'}'
     if(verbose):print("protocol : " + build_string)
-    return build_string
+    return build_string.encode()
 
 
 # protocol to ask server to send all the requested groups in the array, and all of the posts belonging to each group. 
@@ -185,7 +185,7 @@ def protocol_group_items(groupNameArray):
             build_string = build_string +  ","
     build_string = build_string + ']}'
     if(verbose):print("protocol : " + build_string)
-    return build_string
+    return build_string.encode()
 
 
 # protocol to ask server to add a post to the discussion group. 
@@ -197,14 +197,14 @@ def protocol_setpost_id(group,postArray):
     # build the string
     build_string = 'SETPOSTID:{"GROUP":"'+ str(group) + '","SUBJECT":"'+ str(subj) +'","AUTHOR":"'+ str(auth) + '","BODY":"'+ str(body).replace("\n","\\n")+'"}'
     if(verbose):print("protocol : " + build_string)
-    return build_string
+    return build_string.encode()
 
 
 # protocol to ask server to retrieve a post under the given group id. 
 def protocol_get_postid(group_id,post_id):
     build_string = 'GETPOSTID:{"GROUPID":"'+str(group_id)+'","POSTID":"'+ str(post_id)+'"}'
     if(verbose):print("protocol : " + build_string)
-    return build_string
+    return build_string.encode()
 
 
 #---------------------------------#
@@ -301,7 +301,11 @@ def user_interface(server):
     #display options and get user choice
     if(currentUserId == ""):print_commandline_interface()
     else:print_commandline_interface2()
-    user_input = raw_input("\n\n>>")
+    try:
+        user_input = raw_input("\n\n>>")
+    except:
+        user_input = input("\n\n>>")
+        user_input = str(user_input)
     args = trim_to_arg_array(user_input)
     #perform the processed user arguments
     perform_action(args,server)
@@ -374,7 +378,11 @@ def perform_ag_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_AG_response(server_response, rangeStart)
-            user_input = raw_input("\nAG >>")
+            try: 
+                user_input = raw_input("\nAG >>")
+            except:
+                user_input = input("\nAG >>")
+                user_input = str(user_input)        
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
             if len(args) ==0 :
@@ -497,7 +505,11 @@ def perform_sg_mainloop(server,numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_SG_response(server_response, rangeStart)
-            user_input = raw_input("\nSG >>")
+            try: 
+                user_input = raw_input("\nSG >>")
+            except:
+                user_input = input("\nSG >>")
+                user_input = str(user_input)
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
             if len(args) ==0 :
@@ -604,11 +616,19 @@ def find_read_range(num_str):
     
 def construct_message():
     print("creating new post...")
-    subject = raw_input("Please enter the subject\n")
+    try: 
+        subject = raw_input("Please enter the subject\n")
+    except:
+        subject = input("Please enter the subject\n")
+        subject = str(subject)
     print("Please enter the body: [press ENTER,PERIOD,ENTER to finish]\n")
     postMessage = ""
     while True:
-        user_input = raw_input(" >> ")
+        try:
+            user_input = raw_input(" >> ")
+        except:
+            user_input = input(" >> ")
+            user_input = str(user_input)
         if user_input == ".":
             break
         postMessage = postMessage + "\n" + user_input
@@ -636,7 +656,12 @@ def perform_rg_mainloop(server, groupName, numStep):
         # print most recent server response and ask for submenu input
         while True:
             formatted_RG_response(server_response, groupName, rangeStart)
-            user_input = raw_input("\nRG >>")
+            try:
+                user_input = raw_input("\nRG >>")
+            except: 
+                user_input = input("\nRG >>")
+                user_input = str(user_input)
+
             args = trim_to_arg_array(user_input)
             # resume evaluation of further user input. 
             if len(args) ==0 :
@@ -714,7 +739,11 @@ def interface_postid_submenu(server, groupName, post_id, numStep):
         if verbose : print("Received from server " + str(serv_resp))
         while True:
             formatted_postid_response(serv_resp[post_id],start, numStep)
-            user_input = raw_input("\n[id] >>")
+            try: 
+                user_input = raw_input("\n[id] >>")
+            except: 
+                user_input = input("\n[id] >>")
+                user_input = str(user_input)
             args = trim_to_arg_array(user_input)
             if(len(args) == 0):
                 print("No command was found, please submit command")
@@ -785,6 +814,7 @@ def start_polling(s):
     serverResponseString = ""
     while True:
         resp = s.recv(1)
+        resp = str(resp.decode())
         if(checkFin(resp)):
             if verbose : print("Received FIN, will stop polling")
             fin = ""

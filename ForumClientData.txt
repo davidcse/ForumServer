@@ -1,0 +1,52 @@
+{
+    "Joe": {
+        "read": {
+            "comp.General": [
+                "General post 1", 
+                "Tue Dec 13 20:47:43 2016_3"
+            ], 
+            "comp.Ubuntu": [], 
+            "comp.framework.angularjs": [], 
+            "comp.lang.java": [
+                "Tue Dec 13 19:32:20 2016_3"
+            ], 
+            "comp.lang.javascript": [], 
+            "comp.os.threads": [
+                "threads post 2", 
+                "threads post 1", 
+                "threads post 3", 
+                "threads post 4", 
+                "threads post 5", 
+                "Tue Dec 13 21:12:21 2016_5"
+            ], 
+            "comp.programming": [
+                "programming post 1", 
+                "programming post 3", 
+                "12/13/16 20:28:40_3", 
+                "Tue Dec 13 20:46:07 2016_4"
+            ]
+        }, 
+        "subscribed": [
+            "comp.programming", 
+            "comp.os.threads", 
+            "comp.General", 
+            "comp.Ubuntu", 
+            "comp.lang.javascript"
+        ]
+    }, 
+    "Vinny": {
+        "read": {
+            "comp.lang.java": [
+                "java post 3", 
+                "java post 1"
+            ], 
+            "comp.lang.python": [], 
+            "comp.os.threads": [], 
+            "comp.programming": []
+        }, 
+        "subscribed": [
+            "comp.lang.python", 
+            "comp.lang.java"
+        ]
+    }
+}

@@ -1,11 +1,14 @@
 import socket
 import json
-from StringIO import StringIO 
 import traceback
 import threading
 import logging
 import time
 import collections
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 #----------------------#
 #   GLOBAL DATA        #
@@ -532,9 +535,10 @@ def fulfill_post_id_request(client,groupName,postId):
 def fulfill_setpost_id_request(client,postData):
     uniqueTime = time.strftime("%c")
     group = postData["GROUP"]
-    postId = uniqueTime+"_"+str(len(list(database[group])))
-    # build content
     dbLock.acquire()
+    postId = uniqueTime+"_"+str(len(list(database[group])))
+    dbLock.release()
+    # build content
     content = {
         "Group" : group,
         "Author": postData["AUTHOR"],
@@ -542,7 +546,6 @@ def fulfill_setpost_id_request(client,postData):
         "Subject": postData["SUBJECT"],
         "Body":postData["BODY"]
     }
-    dbLock.release()
     set_post(group,postId,content)
     # tell the client confirmation 
     strBuffer = StringIO()
@@ -676,7 +679,7 @@ def perform_protocol_setpost_id(contentHeaders):
     if verbose : print("Evaluating protocol : " + str(contentHeaders))
     try: 
         jso = json.loads(contentHeaders)
-        if(verbose): print jso
+        if(verbose): print(jso)
         return jso
     except Exception as err:
         if verbose: print("client did not send a valid contentHeader for a request for post : " + str(contentHeaders))
@@ -685,10 +688,9 @@ def perform_protocol_setpost_id(contentHeaders):
  
 # MAIN FUNCTION FOR THREADS
 def handleClient(client, addr):
+    client.settimeout(1)
     while True:
         try:
-            # Typically fork at this point
-
             # Receive up to 1024 bytes 
             resp = (client.recv(1024)).strip()
             if(verbose): print("received message : " + str(resp) + " from : " + str(addr))
@@ -727,6 +729,9 @@ def handleClient(client, addr):
             send_end_protocol(client)
             print("\n Finished request: " + str(resp) +" from " + str(addr))
         
+        except socket.timeout:
+            if verbose: print("timeout, continue to listen")
+
         # Issue with connected client socket.
         except Exception as error :
             if verbose: print("Server encountered error, or maybe client not available, closing connection... \n" + str(error))
@@ -752,9 +757,8 @@ if(verbose): print('Initialized Socket')
 s.bind((server,port))
 if(verbose): print('Server binded at : ' + str(port))
 
-# ... and listen for anyone to contact you
-# queueing up to five requests if you get a backlog
-s.listen(5)
+# listen for clients, queueing up to 10 requests for backlog
+s.listen(10)
 print('server is listening at port :'+ str(port))
 
 

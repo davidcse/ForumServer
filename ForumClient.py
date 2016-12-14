@@ -1,16 +1,19 @@
 import socket
 import json
-from StringIO import StringIO
 from os import path 
 from sys import argv
 import traceback
 import time
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 #--------------------#
 #   GLOBAL DATA      #
 #--------------------#
 SERVER = "127.0.0.1"
 PORT = 60000
-CLIENT_DATA_ADDR = "./Data/ForumClientData.txt"
+CLIENT_DATA_ADDR = "./ForumClientData.txt"
 DEFAULT_STEP = 5
 verbose = 0
 
